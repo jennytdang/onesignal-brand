@@ -665,7 +665,6 @@ body {
 .clearspace-demo {
   background: #F5F6F8;
   padding: 40px;
-  height: 214px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -678,7 +677,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: 0px;
 }
 
 .clearspace-box--stacked {
