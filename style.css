@@ -199,17 +199,18 @@ body {
 
 /* ── Sections ───────────────────────────────── */
 .section {
-  margin-bottom: 96px;
+  padding: 64px 64px 0;
   scroll-margin-top: 32px;
-  padding: 0 64px;
+  margin-bottom: 0;
 }
 
-.section:first-of-type {
-  margin-top: 64px;
+.section + .section {
+  border-top: 1px solid var(--gray-200);
 }
 
-#colors {
-  padding-top: 48px;
+.content > main,
+.content {
+  padding-bottom: 96px;
 }
 
 .section-header {
@@ -606,8 +607,9 @@ body {
 .dont-badge { background: #EF4444; }
 
 .logo-usage-preview {
-  padding: 32px 24px 20px;
+  padding: 28px 24px 16px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100px;
@@ -616,10 +618,6 @@ body {
 
 .logo-usage-preview--shadow .logo-usage-img {
   filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.4));
-}
-
-.logo-usage-preview--gradient {
-  background: linear-gradient(135deg, #7274DA, #31E1DE);
 }
 
 .logo-usage-img {
