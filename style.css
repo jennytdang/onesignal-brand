@@ -659,13 +659,13 @@ body {
   border: 1px solid var(--gray-200);
   border-radius: 8px;
   overflow: hidden;
-  height: 214px;
   background: #fff;
 }
 
 .clearspace-demo {
   background: #F5F6F8;
   padding: 40px;
+  height: 214px;
   display: flex;
   align-items: center;
   justify-content: center;
