@@ -48,16 +48,13 @@ body {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   margin-bottom: 20px;
 }
 
-.sidebar-brand {
-  font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 17px;
-  color: var(--black);
-  letter-spacing: -0.01em;
+.sidebar-logo-img {
+  height: 22px;
+  width: auto;
+  display: block;
 }
 
 .sidebar-divider {
@@ -502,19 +499,20 @@ body {
 }
 
 /* ── Logo ───────────────────────────────────── */
-.logo-placeholder-note {
+.logo-primary-demo {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 48px 56px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: var(--purple-50);
-  border: 1px solid #C7C8F2;
-  border-radius: 10px;
-  padding: 16px 20px;
-  font-size: 14px;
-  color: var(--purple-600);
-  font-family: var(--font-body);
-  font-weight: 500;
+  justify-content: center;
   margin-bottom: 8px;
+}
+
+.logo-primary-img {
+  height: 48px;
+  width: auto;
 }
 
 .logo-rules-grid {
@@ -559,11 +557,11 @@ body {
 
 .logo-bg-demo {
   border-radius: 10px;
-  padding: 28px 20px 16px;
+  padding: 28px 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   position: relative;
 }
 
@@ -576,22 +574,25 @@ body {
   pointer-events: none;
 }
 
-.logo-demo-lockup {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 18px;
+.logo-bg-img {
+  height: 28px;
+  width: auto;
+  display: block;
 }
 
-.dark-logo { color: var(--black); }
-.light-logo { color: #fff; }
+.logo-white {
+  filter: brightness(0) invert(1);
+}
+
+.logo-dark {
+  filter: none;
+}
 
 .logo-bg-label {
   font-size: 11px;
   font-family: var(--font-heading);
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: inherit;
-  opacity: 0.7;
 }
 
 /* ── Voice & Tone ───────────────────────────── */
