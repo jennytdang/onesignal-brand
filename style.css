@@ -52,14 +52,14 @@ body {
 }
 
 .sidebar-logo-img {
-  height: 32px;
+  height: 22px;
   width: auto;
   display: block;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: #F3F4F5;
+  background: #D8D8D8;
   margin-bottom: 28px;
 }
 
@@ -503,19 +503,43 @@ body {
 }
 
 /* ── Logo ───────────────────────────────────── */
-.logo-primary-demo {
+.logo-lockups-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.logo-lockup-card {
   background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
-  padding: 48px 56px;
+  overflow: hidden;
+}
+
+.logo-lockup-preview {
+  padding: 48px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  min-height: 160px;
+}
+
+.logo-lockup-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--gray-500);
+  padding: 12px 20px;
+  border-top: 1px solid var(--gray-200);
 }
 
 .logo-primary-img {
   height: 48px;
+  width: auto;
+}
+
+.logo-stacked {
+  height: 100px;
   width: auto;
 }
 
@@ -528,15 +552,11 @@ body {
 .logo-rule-card {
   background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 20px 22px;
 }
 
-.logo-rule-icon {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
+.logo-rule-icon { font-size: 18px; margin-bottom: 10px; }
 .do-icon { color: #16A34A; }
 .dont-icon { color: #DC2626; }
 
@@ -551,6 +571,199 @@ body {
   font-size: 13.5px;
   line-height: 1.6;
   color: var(--gray-600);
+}
+
+/* Logo usage grid */
+.logo-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.logo-usage-card {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+.logo-usage-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.do-badge { background: #16A34A; }
+.dont-badge { background: #EF4444; }
+
+.logo-usage-preview {
+  padding: 32px 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  background: #fff;
+}
+
+.logo-usage-preview--shadow .logo-usage-img {
+  filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.4));
+}
+
+.logo-usage-preview--gradient {
+  background: linear-gradient(135deg, #7274DA, #31E1DE);
+}
+
+.logo-usage-img {
+  height: 28px;
+  width: auto;
+}
+
+.logo-purple-text {
+  filter: hue-rotate(200deg) saturate(2);
+}
+
+.logo-distorted {
+  transform: scaleX(1.3) scaleY(0.8);
+}
+
+.logo-old {
+  filter: sepia(1) saturate(2) hue-rotate(320deg);
+  opacity: 0.7;
+}
+
+.logo-usage-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--gray-500);
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--gray-200);
+  background: #fff;
+}
+
+/* Clearspace */
+.clearspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.clearspace-card {
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.clearspace-demo {
+  padding: 32px;
+  background: #F9FAFB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearspace-outer {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearspace-outer--square {
+  padding: 32px 48px;
+}
+
+.clearspace-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearspace-logo-img {
+  height: 32px;
+  width: auto;
+}
+
+.clearspace-logo-img--stacked {
+  height: 72px;
+}
+
+.clearspace-arrow {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearspace-arrow span {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  color: #9CA3AF;
+  background: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.clearspace-arrow--top {
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  border-bottom: 1px dashed #D1D5DB;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 3px;
+}
+
+.clearspace-arrow--bottom {
+  bottom: 0; left: 0; right: 0;
+  height: 32px;
+  border-top: 1px dashed #D1D5DB;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 3px;
+}
+
+.clearspace-arrow--left {
+  left: 0; top: 0; bottom: 0;
+  width: 32px;
+  border-right: 1px dashed #D1D5DB;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-right: 3px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.clearspace-arrow--left span {
+  writing-mode: horizontal-tb;
+  transform: rotate(-90deg);
+}
+
+.clearspace-arrow--right {
+  right: 0; top: 0; bottom: 0;
+  width: 32px;
+  border-left: 1px dashed #D1D5DB;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-left: 3px;
+}
+
+.clearspace-arrow--right span {
+  writing-mode: horizontal-tb;
+  transform: rotate(90deg);
 }
 
 .logo-bg-grid {
@@ -570,12 +783,7 @@ body {
 }
 
 .logo-bg-demo.disapproved::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  border: 2px solid #DC2626;
-  pointer-events: none;
+  display: none;
 }
 
 .logo-bg-img {
