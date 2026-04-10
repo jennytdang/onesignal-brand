@@ -68,6 +68,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
+  margin-bottom: 8px;
   flex: 1;
 }
 
