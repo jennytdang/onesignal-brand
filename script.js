@@ -1,12 +1,17 @@
 // ── Pixel Hero Canvas ─────────────────────────
+// Scroll-driven pixel transition: brand colors → white as you scroll past the hero.
+// Each pixel has a random threshold. When scroll progress passes that threshold,
+// the pixel snaps to its brand color, then burns to white — exactly like the Framer component.
 
 (function () {
   const canvas = document.getElementById('pixel-canvas');
-  if (!canvas) return;
+  const hero   = canvas && canvas.closest('.hero');
+  if (!canvas || !hero) return;
 
   const SIZE = 24;
+  const TRANSITION_MS = 120; // matches Framer's 120ms linear
 
-  // OneSignal brand palette — pixels flash one of these colors, then burn to white, then fade out
+  // OneSignal brand palette used as accent colors in the transition band
   const BRAND_COLORS = [
     '#4E50D1', // Purple 600
     '#7274DA', // Purple 500
@@ -15,26 +20,21 @@
     '#FFC072', // Yellow 300
   ];
 
-  // Weighted pool: brand colors appear, with some slots weighted toward white
-  // so the effect has occasional pure-white flashes too (matches Framer's "accent" pixels)
-  const COLOR_POOL = [
-    ...BRAND_COLORS,
-    ...BRAND_COLORS, // double the brand colors for density
-    '#ffffff',       // occasional white flash
-    '#ffffff',
-  ];
+  // ~20% of pixels get a brand color accent; the rest go straight to white
+  // This matches Framer's "accent share" concept
+  const ACCENT_SHARE = 0.22;
 
-  const SPAWN_RATE  = 0.022; // fraction of grid spawned per tick
-  const TICK_MS     = 160;   // ms between ticks
-  const PHASE1_MS   = 80;    // brand color hold
-  const PHASE2_MS   = 180;   // burn to white (offset from start)
-  const PHASE3_MS   = 340;   // fade to transparent (offset from start)
+  let pixels = [];    // { el, threshold, color, state }
+  let cols = 0, rows = 0;
+  let lastProgress = -1;
 
-  let pixels = [];
-  let cols = 0;
-  let rows = 0;
-  let tickId = null;
-  const animating = new Set(); // prevent re-triggering mid-animation
+  function pickColor(i) {
+    // Deterministically assign accent vs white per pixel based on index + salt
+    const salt = (i * 2654435761) >>> 0; // cheap hash
+    return (salt % 100) < (ACCENT_SHARE * 100)
+      ? BRAND_COLORS[salt % BRAND_COLORS.length]
+      : '#ffffff';
+  }
 
   function build() {
     const w = canvas.offsetWidth;
@@ -43,67 +43,94 @@
     rows = Math.ceil(h / SIZE);
     const needed = cols * rows;
 
+    // Add
     while (pixels.length < needed) {
+      const i = pixels.length;
       const el = document.createElement('div');
       el.className = 'px';
       canvas.appendChild(el);
-      pixels.push(el);
+      pixels.push({
+        el,
+        threshold: Math.random(), // random flip point in 0–1 scroll range
+        color: pickColor(i),
+        state: 'off',  // off | accent | white
+      });
     }
+    // Remove
     while (pixels.length > needed) {
-      const el = pixels.pop();
-      animating.delete(el);
-      el.remove();
+      pixels.pop().el.remove();
     }
 
-    pixels.forEach((el, i) => {
+    // Position
+    pixels.forEach(({ el }, i) => {
       el.style.left = (i % cols) * SIZE + 'px';
       el.style.top  = Math.floor(i / cols) * SIZE + 'px';
+      el.style.transition = `background-color ${TRANSITION_MS}ms linear`;
+    });
+
+    lastProgress = -1; // force redraw
+    applyScroll();
+  }
+
+  function getProgress() {
+    // 0 = hero top at viewport top
+    // 1 = hero fully scrolled out (bottom of hero at top of viewport)
+    const rect = hero.getBoundingClientRect();
+    const heroH = hero.offsetHeight;
+    // We want the effect to complete as the hero scrolls away.
+    // progress goes from 0→1 as scroll goes from 0 → heroH
+    return Math.min(1, Math.max(0, -rect.top / heroH));
+  }
+
+  // Band width: how wide (in progress units) the transition zone is.
+  // A narrower band = sharper wipe. 0.25 gives a nice soft scatter.
+  const BAND = 0.3;
+
+  function applyScroll() {
+    const progress = getProgress();
+    if (Math.abs(progress - lastProgress) < 0.001) return;
+    lastProgress = progress;
+
+    pixels.forEach(p => {
+      const t = p.threshold;
+
+      if (progress <= 0) {
+        // Fully at top — all pixels off (transparent, hero gradient shows through)
+        if (p.state !== 'off') {
+          p.state = 'off';
+          p.el.style.backgroundColor = 'transparent';
+        }
+        return;
+      }
+
+      // localP: how far this pixel is through its own transition (0=not started, 1=fully white)
+      // pixel starts turning when progress > threshold - BAND/2
+      // pixel finishes (turns white) when progress > threshold + BAND/2
+      const localP = Math.min(1, Math.max(0, (progress - (t - BAND / 2)) / BAND));
+
+      if (localP <= 0) {
+        // Not yet reached — transparent
+        if (p.state !== 'off') {
+          p.state = 'off';
+          p.el.style.backgroundColor = 'transparent';
+        }
+      } else if (localP < 0.5) {
+        // In first half of band — show brand/accent color
+        if (p.state !== 'accent') {
+          p.state = 'accent';
+          p.el.style.backgroundColor = p.color;
+        }
+      } else {
+        // Past midpoint — burn to white
+        if (p.state !== 'white') {
+          p.state = 'white';
+          p.el.style.backgroundColor = '#ffffff';
+        }
+      }
     });
   }
 
-  function animatePixel(el) {
-    if (animating.has(el)) return;
-    animating.add(el);
-
-    const color = COLOR_POOL[Math.floor(Math.random() * COLOR_POOL.length)];
-
-    // Phase 1 — snap to brand color
-    el.style.transition = `background-color ${PHASE1_MS}ms linear`;
-    el.style.backgroundColor = color;
-
-    // Phase 2 — burn to white
-    const t2 = setTimeout(() => {
-      el.style.transition = `background-color ${PHASE2_MS - PHASE1_MS}ms linear`;
-      el.style.backgroundColor = '#ffffff';
-    }, PHASE1_MS + 20);
-
-    // Phase 3 — fade out
-    const t3 = setTimeout(() => {
-      el.style.transition = `background-color ${500}ms linear`;
-      el.style.backgroundColor = 'transparent';
-    }, PHASE2_MS + 40);
-
-    // Release lock after full cycle
-    setTimeout(() => {
-      animating.delete(el);
-    }, PHASE3_MS + 520);
-  }
-
-  function tick() {
-    const count = Math.max(1, Math.floor(pixels.length * SPAWN_RATE));
-    // Shuffle a slice of the pixel pool to avoid repeating same indices
-    const available = pixels.filter(el => !animating.has(el));
-    for (let i = 0; i < Math.min(count, available.length); i++) {
-      const idx = Math.floor(Math.random() * available.length);
-      animatePixel(available.splice(idx, 1)[0]);
-    }
-  }
-
-  function start() {
-    build();
-    if (tickId) clearInterval(tickId);
-    tickId = setInterval(tick, TICK_MS);
-  }
+  window.addEventListener('scroll', applyScroll, { passive: true });
 
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -111,7 +138,7 @@
     resizeTimer = setTimeout(build, 150);
   });
 
-  start();
+  build();
 })();
 
 // Active nav on scroll
