@@ -179,7 +179,7 @@ body {
 .pixel-strip {
   position: relative;
   width: 100%;
-  height: 55vh;
+  height: 288px;
   overflow: hidden;
   background: #7274DA;
 }
