@@ -175,11 +175,11 @@ document.querySelectorAll('.nav-link').forEach(link => {
 const toast = document.getElementById('toast');
 let toastTimer;
 
-document.querySelectorAll('.color-card[data-copy]').forEach(card => {
-  card.addEventListener('click', () => {
-    navigator.clipboard.writeText(card.dataset.copy).then(() => {
+document.querySelectorAll('.color-card[data-copy], .scale-swatch[data-copy]').forEach(el => {
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText(el.dataset.copy).then(() => {
       clearTimeout(toastTimer);
-      toast.textContent = `Copied ${card.dataset.copy}`;
+      toast.textContent = `Copied ${el.dataset.copy}`;
       toast.classList.add('show');
       toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
     });

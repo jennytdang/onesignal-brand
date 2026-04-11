@@ -352,6 +352,71 @@ body {
   color: var(--gray-500);
 }
 
+/* ── Color Scales ────────────────────────────── */
+.scale-palettes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scale-palette {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scale-label {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500);
+  width: 52px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.scale-strip {
+  display: flex;
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 48px;
+}
+
+.scale-swatch {
+  flex: 1;
+  background: var(--sw);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  transition: flex 0.15s ease;
+}
+
+.scale-swatch:hover {
+  flex: 1.6;
+}
+
+.scale-swatch span {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(0,0,0,0.45);
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.scale-swatch span.light {
+  color: rgba(255,255,255,0.6);
+}
+
+.scale-swatch:hover span {
+  opacity: 1;
+}
+
 /* ── Do / Don't ─────────────────────────────── */
 .usage-grid {
   display: grid;
