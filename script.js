@@ -29,7 +29,7 @@
   let rafId = null;
 
   function resize() {
-    const dpr = window.devicePixelRatio || 1;
+    dpr = window.devicePixelRatio || 1;
     W = hero.offsetWidth;
     H = hero.offsetHeight;
 
@@ -51,21 +51,29 @@
     drawBase();
   }
 
+  function px(n) {
+    // Snap to nearest 0.5 logical px so lines land on physical pixel boundaries
+    return Math.round(n * dpr) / dpr;
+  }
+
+  let dpr = window.devicePixelRatio || 1;
+
   function drawBase() {
     base.clearRect(0, 0, W, H);
     base.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
-    base.lineWidth = 0.5;
+    base.lineWidth = 1 / dpr; // 1 physical pixel
     hLines.forEach(l => {
-      base.beginPath(); base.moveTo(0, l.pos); base.lineTo(W, l.pos); base.stroke();
+      const y = px(l.pos);
+      base.beginPath(); base.moveTo(0, y); base.lineTo(W, y); base.stroke();
     });
     vLines.forEach(l => {
-      base.beginPath(); base.moveTo(l.pos, 0); base.lineTo(l.pos, H); base.stroke();
+      const x = px(l.pos);
+      base.beginPath(); base.moveTo(x, 0); base.lineTo(x, H); base.stroke();
     });
   }
 
   function render() {
     rafId = requestAnimationFrame(render);
-    const dpr = window.devicePixelRatio || 1;
     glow.setTransform(dpr, 0, 0, dpr, 0, 0);
     glow.clearRect(0, 0, W, H);
 
@@ -81,23 +89,24 @@
       line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
     });
 
-    // Draw crisp glowing lines at full canvas width/height
+    // Draw crisp glowing lines — 1 physical pixel, snapped
+    glow.lineWidth = 1 / dpr;
     hLines.forEach(line => {
       if (line.glow < 0.005) return;
+      const y = px(line.pos);
       glow.strokeStyle = `rgba(255,255,255,${(line.glow * GLOW_ALPHA).toFixed(3)})`;
-      glow.lineWidth = 0.5;
       glow.beginPath();
-      glow.moveTo(0, line.pos);
-      glow.lineTo(W, line.pos);
+      glow.moveTo(0, y);
+      glow.lineTo(W, y);
       glow.stroke();
     });
     vLines.forEach(line => {
       if (line.glow < 0.005) return;
+      const x = px(line.pos);
       glow.strokeStyle = `rgba(255,255,255,${(line.glow * GLOW_ALPHA).toFixed(3)})`;
-      glow.lineWidth = 0.5;
       glow.beginPath();
-      glow.moveTo(line.pos, 0);
-      glow.lineTo(line.pos, H);
+      glow.moveTo(x, 0);
+      glow.lineTo(x, H);
       glow.stroke();
     });
 
