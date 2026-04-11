@@ -3,7 +3,7 @@
 :root {
   --purple-600: #4E50D1;
   --purple-500: #7274DA;
-  --purple-50: #F5F4FE;
+  --purple-100: #E5E6F8;
   --white: #FFFFFF;
   --black: #051B2C;
   --blue-400: #4DA6EF;
@@ -406,7 +406,7 @@ body {
 
 .type-specimen.nunito {
   font-family: var(--font-body);
-  background: var(--purple-50);
+  background: var(--purple-100);
   color: var(--black);
 }
 
@@ -1224,7 +1224,7 @@ body {
 }
 
 .nav-link-ai.active {
-  background: rgba(78,80,209,0.12) !important;
+  background: var(--purple-100) !important;
   color: var(--purple-600) !important;
 }
 
