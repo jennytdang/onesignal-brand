@@ -9,31 +9,24 @@
 
   gridEl.innerHTML = '';
 
-  const CELL        = 40;       // pixel/grid size
-  const BASE_ALPHA  = 0.12;     // resting grid opacity
-  const TRAIL_LIFE  = 55;       // frames a pixel lives
-  const SPAWN_DIST  = 12;       // spawn new pixel every N px of movement
-  const MAX_PIXELS  = 120;      // max live trail pixels
+  // Trail canvas only — no grid lines
+  const trailCanvas = document.createElement('canvas');
+  trailCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;';
+  gridEl.appendChild(trailCanvas);
+  const tctx = trailCanvas.getContext('2d');
+
+  const CELL        = 40;
+  const TRAIL_LIFE  = 55;
+  const SPAWN_DIST  = 12;
+  const MAX_PIXELS  = 120;
   const COLORS      = [
-    [255, 255, 255],  // white (most common)
+    [255, 255, 255],
     [255, 255, 255],
     [255, 255, 255],
     [77,  166, 239],  // Blue 400
     [49,  225, 222],  // Cyan 300
     [255, 192, 114],  // Yellow 300
   ];
-
-  // ── Base grid canvas (static) ─────────────
-  const baseCanvas = document.createElement('canvas');
-  baseCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
-  gridEl.appendChild(baseCanvas);
-  const bctx = baseCanvas.getContext('2d');
-
-  // ── Trail canvas (animated) ───────────────
-  const trailCanvas = document.createElement('canvas');
-  trailCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;';
-  gridEl.appendChild(trailCanvas);
-  const tctx = trailCanvas.getContext('2d');
 
   let W = 0, H = 0, dpr = 1;
   let particles = [];
@@ -44,39 +37,10 @@
     dpr = window.devicePixelRatio || 1;
     W = hero.offsetWidth;
     H = hero.offsetHeight;
-
-    [baseCanvas, trailCanvas].forEach(c => {
-      c.width  = Math.round(W * dpr);
-      c.height = Math.round(H * dpr);
-      c.style.width  = W + 'px';
-      c.style.height = H + 'px';
-    });
-
-    drawBase();
-  }
-
-  function drawBase() {
-    bctx.setTransform(1, 0, 0, 1, 0, 0);
-    bctx.clearRect(0, 0, baseCanvas.width, baseCanvas.height);
-    bctx.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
-    bctx.lineWidth = 1;
-
-    // Horizontal lines
-    for (let y = CELL; y < H; y += CELL) {
-      const py = Math.round(y * dpr) + 0.5;
-      bctx.beginPath();
-      bctx.moveTo(0, py);
-      bctx.lineTo(W * dpr, py);
-      bctx.stroke();
-    }
-    // Vertical lines
-    for (let x = CELL; x < W; x += CELL) {
-      const px = Math.round(x * dpr) + 0.5;
-      bctx.beginPath();
-      bctx.moveTo(px, 0);
-      bctx.lineTo(px, H * dpr);
-      bctx.stroke();
-    }
+    trailCanvas.width  = Math.round(W * dpr);
+    trailCanvas.height = Math.round(H * dpr);
+    trailCanvas.style.width  = W + 'px';
+    trailCanvas.style.height = H + 'px';
   }
 
   function spawnPixel(x, y) {
