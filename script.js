@@ -27,7 +27,7 @@
   let rafId = null;
 
   function snap(n) {
-    // Snap to exact physical pixel center to avoid anti-alias blur
+    // Convert logical px to physical px integer + 0.5 center, back to logical
     return (Math.round(n * dpr - 0.5) + 0.5) / dpr;
   }
 
@@ -39,51 +39,46 @@
     canvas.height = Math.round(H * dpr);
     canvas.style.width  = W + 'px';
     canvas.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Work in RAW PHYSICAL pixels — no DPR transform scaling
+    // This guarantees 1:1 pixel mapping with no anti-alias blur
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = false;
 
+    // Store line positions in physical pixels
     hLines = [];
-    for (let y = CELL; y < H; y += CELL) hLines.push({ pos: snap(y), glow: 0 });
+    for (let y = CELL; y < H; y += CELL) {
+      hLines.push({ pos: Math.round(y * dpr) + 0.5, posL: y, glow: 0 });
+    }
     vLines = [];
-    for (let x = CELL; x < W; x += CELL) vLines.push({ pos: snap(x), glow: 0 });
+    for (let x = CELL; x < W; x += CELL) {
+      vLines.push({ pos: Math.round(x * dpr) + 0.5, posL: x, glow: 0 });
+    }
   }
 
-  // Compute influence at a line from all trail points + current cursor
-  function influence(lineDist) {
-    // lineDist = perpendicular distance from line to cursor
-    let peak = mouseX > -8000 && lineDist < RADIUS
-      ? (1 - lineDist / RADIUS) : 0;
-
-    // Trail adds lingering glow — older points have less weight
-    trail.forEach((pt, ti) => {
-      const age    = (trail.length - ti) / trail.length;
-      const weight = Math.pow(1 - age, 0.6); // non-linear falloff
-      // compute the correct perpendicular distance for h vs v lines
-      // (caller passes the right axis distance)
-    });
-
-    return peak;
-  }
+  // (unused stub — kept for reference)
+  function influence() {}
 
   function render() {
     rafId = requestAnimationFrame(render);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
 
-    // ── Update line glow values ──
+    const PW = canvas.width;
+    const PH = canvas.height;
+
+    // ── Update line glow values (using logical positions for distance math) ──
     hLines.forEach(line => {
       let peak = 0;
-      // Current cursor
       if (mouseX > -8000) {
-        const dy = Math.abs(line.pos - mouseY);
+        const dy = Math.abs(line.posL - mouseY);
         if (dy < RADIUS) peak = Math.max(peak, 1 - dy / RADIUS);
       }
-      // Trail history
       trail.forEach((pt, ti) => {
         const age    = (trail.length - ti) / trail.length;
         const weight = Math.pow(1 - age, 0.5);
-        const dy = Math.abs(line.pos - pt.y);
+        const dy = Math.abs(line.posL - pt.y);
         if (dy < RADIUS) peak = Math.max(peak, (1 - dy / RADIUS) * weight);
       });
       line.glow = peak > line.glow ? peak : Math.max(0, line.glow - FADE);
@@ -92,27 +87,27 @@
     vLines.forEach(line => {
       let peak = 0;
       if (mouseX > -8000) {
-        const dx = Math.abs(line.pos - mouseX);
+        const dx = Math.abs(line.posL - mouseX);
         if (dx < RADIUS) peak = Math.max(peak, 1 - dx / RADIUS);
       }
       trail.forEach((pt, ti) => {
         const age    = (trail.length - ti) / trail.length;
         const weight = Math.pow(1 - age, 0.5);
-        const dx = Math.abs(line.pos - pt.x);
+        const dx = Math.abs(line.posL - pt.x);
         if (dx < RADIUS) peak = Math.max(peak, (1 - dx / RADIUS) * weight);
       });
       line.glow = peak > line.glow ? peak : Math.max(0, line.glow - FADE);
     });
 
-    // ── Draw lines — crisp, no mask, opacity encodes glow ──
-    ctx.lineWidth = 1 / dpr;
+    // ── Draw lines at PHYSICAL pixel coords — 1px wide, integer + 0.5 offset ──
+    ctx.lineWidth = 1;
 
     hLines.forEach(line => {
       const alpha = BASE_ALPHA + line.glow * (GLOW_ALPHA - BASE_ALPHA);
       ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
       ctx.beginPath();
       ctx.moveTo(0, line.pos);
-      ctx.lineTo(W, line.pos);
+      ctx.lineTo(PW, line.pos);
       ctx.stroke();
     });
 
@@ -121,7 +116,7 @@
       ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
       ctx.beginPath();
       ctx.moveTo(line.pos, 0);
-      ctx.lineTo(line.pos, H);
+      ctx.lineTo(line.pos, PH);
       ctx.stroke();
     });
 
