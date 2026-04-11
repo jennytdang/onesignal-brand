@@ -168,7 +168,7 @@ body {
 /* ── Hero — full width, centered ───────────────── */
 .hero {
   background: #7274DA;
-  padding: 120px 64px 140px;
+  padding: 80px 64px 64px;
   position: relative;
   display: flex;
   justify-content: center;
