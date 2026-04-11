@@ -189,7 +189,7 @@ body {
   width: 24px;
   height: 24px;
   transition: background-color 120ms linear;
-  background-color: transparent;
+  background-color: #7274DA;
 }
 
 .hero-pill {

@@ -1,35 +1,65 @@
-// ── Pixel Strip Transition ────────────────────
-// Purple 500 bg → supplemental colors EXPLODE in → burn to white
-// Scroll-driven, starts below fold. Cranked up: tall strip, dense accents, fast burn.
+// ── Pixel Strip — Framer-faithful scroll wipe ─────────────────────────────────
+//
+// How the Framer PixelScrollTransition actually works (from source HTML):
+//
+//   • The strip fills entirely with 24×24px divs, ALL starting as the bg color
+//   • Each pixel gets a random "flip threshold" (0–1)
+//   • As scroll progress rises, a tight BAND sweeps upward through the strip
+//   • Pixels whose threshold falls inside the band get an ACCENT color
+//   • Pixels whose threshold is BELOW the band (already swept) become WHITE
+//   • Pixels whose threshold is ABOVE the band stay the BG color (Purple 500)
+//   • Accent colors are SPARSE (~15% of pixels) — the rest go bg→white directly
+//   • The band is narrow (~0.08 wide) so you see a crisp, scattered edge
+//
+// Progress is scroll-driven: 0 = strip bottom enters viewport, 1 = strip fully white
 
 (function () {
   const strip = document.getElementById('pixel-strip');
   if (!strip) return;
 
   const SIZE = 24;
+  const BG_COLOR     = '#7274DA'; // Purple 500 — matches hero exactly
+  const WHITE        = '#ffffff';
+  const BAND_WIDTH   = 0.08;      // tight band, like Framer
 
-  // All supplemental colors, weighted toward the more vivid ones
-  const ACCENT_COLORS = [
-    '#31E1DE', // Cyan 300   — most vivid, highest weight
-    '#31E1DE',
+  // Supplemental colors — sparse accent flashes during the wipe
+  // Weighted: mostly cyan/blue, occasional yellow, rare purple
+  const ACCENTS = [
+    '#31E1DE', // Cyan 300
     '#31E1DE',
     '#4DA6EF', // Blue 400
     '#4DA6EF',
     '#FFC072', // Yellow 300
-    '#FFC072',
     '#4E50D1', // Purple 600
-    '#ffffff',  // some go straight to white (no accent flash)
   ];
-
-  function pickColor(i) {
-    // Use a hash so colors are distributed evenly but feel random
-    const hash = (Math.imul(i ^ (i >>> 16), 0x45d9f3b) >>> 0);
-    return ACCENT_COLORS[hash % ACCENT_COLORS.length];
-  }
+  const ACCENT_PROB = 0.15; // 15% of pixels get an accent flash
 
   let pixels = [];
   let cols = 0, rows = 0;
   let lastProgress = -1;
+
+  function buildPixels(count) {
+    while (pixels.length < count) {
+      const i = pixels.length;
+      const el = document.createElement('div');
+      el.className = 'px';
+      strip.appendChild(el);
+
+      // Pre-assign whether this pixel gets an accent or goes straight to white
+      const isAccent = Math.random() < ACCENT_PROB;
+      const accentColor = isAccent
+        ? ACCENTS[Math.floor(Math.random() * ACCENTS.length)]
+        : null;
+
+      // Pure random threshold — no row bias. The Framer "Random" pattern is fully random.
+      const threshold = Math.random();
+
+      pixels.push({ el, threshold, accentColor, lastColor: null });
+    }
+    while (pixels.length > count) {
+      pixels.pop().el.remove();
+    }
+  }
 
   function build() {
     const w = strip.offsetWidth;
@@ -38,91 +68,54 @@
     rows = Math.ceil(h / SIZE);
     const needed = cols * rows;
 
-    while (pixels.length < needed) {
-      const i = pixels.length;
-      const row = Math.floor(i / cols);
-      const el = document.createElement('div');
-      el.className = 'px';
-      strip.appendChild(el);
-
-      // rowFrac: 0 = top, 1 = bottom. Bottom rows flip first.
-      const rowFrac = row / Math.max(rows - 1, 1);
-      const base = 1 - rowFrac;
-      // Heavy jitter — pixels within same row scatter wildly
-      const jitter = (Math.random() - 0.5) * 0.6;
-      const threshold = Math.min(0.97, Math.max(0.03, base + jitter));
-
-      pixels.push({
-        el,
-        threshold,
-        accentColor: pickColor(i),
-        state: 'bg',
-        accentTimer: null,
-      });
-    }
-
-    while (pixels.length > needed) {
-      const p = pixels.pop();
-      clearTimeout(p.accentTimer);
-      p.el.remove();
-    }
+    buildPixels(needed);
 
     pixels.forEach(({ el }, i) => {
       el.style.left = (i % cols) * SIZE + 'px';
       el.style.top  = Math.floor(i / cols) * SIZE + 'px';
+      el.style.transition = 'background-color 120ms linear';
     });
 
     lastProgress = -1;
     update();
   }
 
+  function setColor(p, color) {
+    if (p.lastColor === color) return;
+    p.lastColor = color;
+    p.el.style.backgroundColor = color;
+  }
+
   function getProgress() {
     const rect = strip.getBoundingClientRect();
     const vh   = window.innerHeight;
-    // Compress the range so the entire transition fires within one viewport height of scrolling
-    // strip enters at rect.top === vh, we want full transition by rect.top === vh * 0.1
-    const traveled = vh - rect.top;           // px scrolled since strip entered view
-    const range    = vh * 0.85;               // compress: full effect in 85% of viewport height
-    return Math.min(1, Math.max(0, traveled / range));
-  }
-
-  function setPixelState(p, newState) {
-    if (p.state === newState) return;
-    p.state = newState;
-    clearTimeout(p.accentTimer);
-
-    if (newState === 'bg') {
-      p.el.style.transition = 'background-color 80ms linear';
-      p.el.style.backgroundColor = 'transparent';
-    } else if (newState === 'accent') {
-      p.el.style.transition = 'background-color 60ms linear'; // snap in fast
-      p.el.style.backgroundColor = p.accentColor;
-      // Burn to white quickly after the flash
-      p.accentTimer = setTimeout(() => {
-        if (p.state === 'accent') {
-          p.state = 'white';
-          p.el.style.transition = 'background-color 120ms linear';
-          p.el.style.backgroundColor = '#ffffff';
-        }
-      }, 120);
-    } else if (newState === 'white') {
-      p.el.style.transition = 'background-color 80ms linear';
-      p.el.style.backgroundColor = '#ffffff';
-    }
+    // Start when strip bottom enters viewport, complete when strip top exits
+    // Tighten range so transition completes before strip scrolls past
+    const traveled = vh - rect.top;
+    const total    = vh + strip.offsetHeight;
+    return Math.min(1, Math.max(0, traveled / total));
   }
 
   function update() {
-    const progress = getProgress();
-    if (Math.abs(progress - lastProgress) < 0.001) return;
-    lastProgress = progress;
+    const p = getProgress();
+    if (Math.abs(p - lastProgress) < 0.0005) return;
+    lastProgress = p;
 
-    pixels.forEach(p => {
-      if (progress <= 0) {
-        setPixelState(p, 'bg');
-      } else if (progress >= p.threshold) {
-        if (p.state === 'bg') setPixelState(p, 'accent');
+    const bandLo = p - BAND_WIDTH;
+    const bandHi = p;
+
+    pixels.forEach(px => {
+      const t = px.threshold;
+
+      if (t > bandHi) {
+        // Above the band — not yet swept, still bg color
+        setColor(px, BG_COLOR);
+      } else if (t >= bandLo) {
+        // Inside the band — accent flash or white
+        setColor(px, px.accentColor || WHITE);
       } else {
-        if (p.state === 'white') setPixelState(p, 'bg');
+        // Below the band — already swept, white
+        setColor(px, WHITE);
       }
     });
   }
