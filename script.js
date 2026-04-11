@@ -4,104 +4,129 @@
   const grid = document.getElementById('hero-grid');
   if (!hero || !grid) return;
 
-  const CELL_SIZE  = 40;
-  const RADIUS     = 180;
-  const MAX_ALPHA  = 0.22;
-  const DECAY      = 0.004; // very slow fade — trail lingers ~4 seconds
-  const TRAIL_LEN  = 32;    // longer history buffer
+  // Config — tune these to taste
+  const CONFIG = {
+    cellSize:       40,
+    glowIntensity:  0.9,    // max brightness of activated cells
+    fadeSpeed:      0.03,   // lower = longer trail
+    trailLength:    80,     // radius of cursor activation (px)
+    gooeyEnabled:   true,   // liquid blending between neighbors
+    gooeyStrength:  8,      // influence of neighbors
+    pulseEnabled:   false,  // subtle pulse on active cells
+    pulseSpeed:     2,      // pulse animation speed
+  };
 
   let cols = 0, rows = 0, cells = [];
   let mouseX = -9999, mouseY = -9999;
-  let trail = [];           // ring buffer of recent { x, y }
   let rafId = null;
-  let animating = false;
+  let time = 0;
 
   function build() {
     const w = hero.offsetWidth;
     const h = hero.offsetHeight;
-    cols = Math.ceil(w / CELL_SIZE);
-    rows = Math.ceil(h / CELL_SIZE);
-    grid.style.gridTemplateColumns = `repeat(${cols}, ${CELL_SIZE}px)`;
-    grid.style.gridTemplateRows    = `repeat(${rows}, ${CELL_SIZE}px)`;
+    cols = Math.ceil(w / CONFIG.cellSize);
+    rows = Math.ceil(h / CONFIG.cellSize);
+    grid.style.gridTemplateColumns = `repeat(${cols}, ${CONFIG.cellSize}px)`;
+    grid.style.gridTemplateRows    = `repeat(${rows}, ${CONFIG.cellSize}px)`;
     grid.innerHTML = '';
     cells = [];
     for (let i = 0; i < cols * rows; i++) {
       const el = document.createElement('div');
       el.className = 'hero-grid-cell';
       grid.appendChild(el);
-      cells.push({ el, alpha: 0 });
+      cells.push({ el, alpha: 0, raw: 0 });
     }
-    trail = [];
   }
 
   function render() {
-    rafId = null;
+    rafId = requestAnimationFrame(render);
+    time += 0.016;
+
     const rect = hero.getBoundingClientRect();
+    const lx = mouseX - rect.left;
+    const ly = mouseY - rect.top;
+    const R  = CONFIG.trailLength;
 
-    // Build combined influence from current pos + trail history
-    // Each trail point fades based on how old it is
-    let anyLit = false;
-
+    // Pass 1 — compute raw cursor influence
     cells.forEach((c, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
-      const cx  = col * CELL_SIZE + CELL_SIZE / 2;
-      const cy  = row * CELL_SIZE + CELL_SIZE / 2;
+      const cx  = col * CONFIG.cellSize + CONFIG.cellSize / 2;
+      const cy  = row * CONFIG.cellSize + CONFIG.cellSize / 2;
+      const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
+      const target = dist < R
+        ? CONFIG.glowIntensity * (1 - dist / R)
+        : 0;
 
-      // Current cursor influence
-      let peak = 0;
-      if (mouseX > -9000) {
-        const lx = mouseX - rect.left;
-        const ly = mouseY - rect.top;
-        const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
-        if (dist < RADIUS) peak = MAX_ALPHA * (1 - dist / RADIUS);
-      }
-
-      // Trail influence — older points have less weight
-      trail.forEach((pt, ti) => {
-        const age    = (trail.length - ti) / trail.length; // 0=new, 1=oldest
-        const weight = (1 - age) * 0.7;
-        const lx = pt.x - rect.left;
-        const ly = pt.y - rect.top;
-        const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
-      if (dist < RADIUS) {
-          peak = Math.max(peak, MAX_ALPHA * (1 - dist / RADIUS) * weight);
-        }
-      });
-
-      // Decay existing alpha toward peak — snap up fast, fade slowly
-      if (peak > c.alpha) {
-        c.alpha = peak; // instant on
+      // Snap up instantly, decay slowly
+      if (target > c.raw) {
+        c.raw = target;
       } else {
-        c.alpha = Math.max(0, c.alpha - DECAY); // slow decay
+        c.raw = Math.max(0, c.raw - CONFIG.fadeSpeed);
+      }
+    });
+
+    // Pass 2 — gooey: blend each cell with its neighbors
+    let anyLit = false;
+    cells.forEach((c, i) => {
+      let blended = c.raw;
+
+      if (CONFIG.gooeyEnabled) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        let neighborSum = 0, neighborCount = 0;
+
+        // Sample 4 cardinal neighbors
+        const neighbors = [
+          i - cols,       // up
+          i + cols,       // down
+          col > 0 ? i - 1 : -1,       // left
+          col < cols - 1 ? i + 1 : -1 // right
+        ];
+
+        neighbors.forEach(ni => {
+          if (ni >= 0 && ni < cells.length) {
+            neighborSum += cells[ni].raw;
+            neighborCount++;
+          }
+        });
+
+        if (neighborCount > 0) {
+          const neighborAvg = neighborSum / neighborCount;
+          const gooeyInfluence = neighborAvg * (CONFIG.gooeyStrength / 100);
+          blended = Math.min(CONFIG.glowIntensity, c.raw + gooeyInfluence);
+        }
       }
 
-      if (c.alpha > 0.001) {
+      // Pulse modifier
+      if (CONFIG.pulseEnabled && blended > 0.01) {
+        const pulse = 1 + 0.15 * Math.sin(time * CONFIG.pulseSpeed * Math.PI * 2);
+        blended = Math.min(CONFIG.glowIntensity, blended * pulse);
+      }
+
+      c.alpha = blended;
+
+      if (c.alpha > 0.003) {
         anyLit = true;
         c.el.style.backgroundColor = `rgba(255,255,255,${c.alpha.toFixed(3)})`;
-      } else if (c.alpha <= 0.001 && c.el.style.backgroundColor !== 'transparent') {
+      } else if (c.el.style.backgroundColor !== 'transparent') {
         c.alpha = 0;
         c.el.style.backgroundColor = 'transparent';
       }
     });
 
-    // Keep animating while any cell is still glowing
-    if (anyLit || mouseX > -9000) {
-      rafId = requestAnimationFrame(render);
-    } else {
-      animating = false;
+    // Stop loop if nothing is lit and cursor is outside
+    if (!anyLit && mouseX < -8000) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
     }
   }
 
   function startRender() {
     if (!rafId) rafId = requestAnimationFrame(render);
-    animating = true;
   }
 
   hero.addEventListener('mousemove', e => {
-    // Push to trail ring buffer
-    trail.push({ x: e.clientX, y: e.clientY });
-    if (trail.length > TRAIL_LEN) trail.shift();
     mouseX = e.clientX;
     mouseY = e.clientY;
     startRender();
@@ -110,7 +135,7 @@
   hero.addEventListener('mouseleave', () => {
     mouseX = -9999;
     mouseY = -9999;
-    startRender(); // let decay animation finish
+    // keep animating so trail fades out naturally
   });
 
   let resizeTimer;
@@ -121,7 +146,6 @@
 
   build();
 })();
-
 
 // ── Active nav on scroll ──────────────────────
 const sections = document.querySelectorAll('.section');
