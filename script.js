@@ -20,7 +20,7 @@
   const CELL       = 40;
   const RADIUS     = 180;   // glow radius
   const FADE       = 0.025; // trail decay per frame
-  const BASE_ALPHA = 0.06;  // resting grid line opacity
+  const BASE_ALPHA = 0.14;  // resting grid line opacity
   const GLOW_ALPHA = 0.85;  // peak glow line opacity
 
   let W = 0, H = 0;
