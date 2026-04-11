@@ -169,7 +169,7 @@ body {
 /* ── Hero ───────────────────────────────────── */
 .hero {
   background: linear-gradient(to right, #7274DA, #4DA6EF);
-  padding: 120px 64px 140px;
+  padding: 88px 64px 88px;
   position: relative;
   overflow: hidden;
 }
