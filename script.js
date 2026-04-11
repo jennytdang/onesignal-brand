@@ -1,12 +1,9 @@
 // ── Pixel Strip Transition ────────────────────
-// Matches the Framer PixelScrollTransition component exactly:
-// - A fixed-height strip sits between the hero (gradient) and white page content
-// - Strip background = hero gradient color (continues visually from hero)
-// - Each pixel has a random threshold (0–1)
-// - As the strip scrolls into view, pixels whose threshold < scroll progress
-//   flip: first to a brand accent color, then immediately to white (#fff)
-// - Bottom rows flip first (fills bottom-up), top rows last
-// - Result: gradient "dissolves" into white pixel by pixel
+// Purple 500 bg → supplemental colors scatter in randomly → burn to white
+// Scroll-driven: transition starts when strip enters viewport (below the fold).
+// Each pixel has a random threshold. As scroll progress rises, pixels flip:
+//   transparent (showing Purple 500 bg) → supplemental color → white
+// Bottom rows flip first for a natural bottom-up reveal.
 
 (function () {
   const strip = document.getElementById('pixel-strip');
@@ -14,28 +11,23 @@
 
   const SIZE = 24;
 
-  // OneSignal brand colors used as accent flashes (like Framer's "accent pixels")
-  const BRAND_COLORS = [
-    '#4E50D1', // Purple 600
-    '#7274DA', // Purple 500
+  // OneSignal supplemental colors — these are what pop in before white
+  const ACCENT_COLORS = [
     '#4DA6EF', // Blue 400
     '#31E1DE', // Cyan 300
     '#FFC072', // Yellow 300
+    '#4E50D1', // Purple 600 (darker pop against Purple 500 bg)
   ];
-  const ACCENT_SHARE = 0.20; // 20% of pixels flash a brand color before going white
+
+  // Every pixel gets a supplemental color (not white yet — white is the final state)
+  function pickColor(i) {
+    const hash = Math.imul(i ^ (i >>> 16), 0x45d9f3b) >>> 0;
+    return ACCENT_COLORS[hash % ACCENT_COLORS.length];
+  }
 
   let pixels = [];
   let cols = 0, rows = 0;
   let lastProgress = -1;
-
-  // Each pixel gets a color: brand accent or white (determined once, deterministically)
-  function pickColor(i) {
-    const hash = Math.imul(i ^ (i >>> 16), 0x45d9f3b) >>> 0;
-    if ((hash % 100) < (ACCENT_SHARE * 100)) {
-      return BRAND_COLORS[hash % BRAND_COLORS.length];
-    }
-    return '#ffffff';
-  }
 
   function build() {
     const w = strip.offsetWidth;
@@ -51,18 +43,28 @@
       el.className = 'px';
       strip.appendChild(el);
 
-      // Threshold: bottom rows flip first (threshold near 0), top rows last (near 1)
-      // Add per-pixel randomness within each row so it scatters, not a clean line
-      const rowFrac = row / Math.max(rows - 1, 1); // 0=top, 1=bottom
-      const baseThreshold = 1 - rowFrac; // bottom=0, top=1
-      const jitter = (Math.random() - 0.5) * 0.3;
-      const threshold = Math.min(1, Math.max(0, baseThreshold + jitter));
+      // Threshold: 0 = flips earliest (bottom rows), 1 = flips last (top rows)
+      // rowFrac: 0 = top row, 1 = bottom row
+      const rowFrac = row / Math.max(rows - 1, 1);
+      // Bottom rows have lower threshold so they flip first
+      const base = 1 - rowFrac;
+      // Jitter per pixel so the edge is scattered, not a hard horizontal line
+      const jitter = (Math.random() - 0.5) * 0.35;
+      const threshold = Math.min(0.98, Math.max(0.02, base + jitter));
 
-      pixels.push({ el, threshold, color: pickColor(i), state: 'bg' });
+      pixels.push({
+        el,
+        threshold,
+        accentColor: pickColor(i),
+        state: 'bg',          // bg | accent | white
+        accentTimer: null,
+      });
     }
 
     while (pixels.length > needed) {
-      pixels.pop().el.remove();
+      const p = pixels.pop();
+      clearTimeout(p.accentTimer);
+      p.el.remove();
     }
 
     pixels.forEach(({ el }, i) => {
@@ -75,40 +77,65 @@
   }
 
   function getProgress() {
-    // progress 0 = strip bottom just entering viewport
-    // progress 1 = strip top at viewport top (fully scrolled through)
+    // 0 = strip top is at bottom of viewport (just coming into view)
+    // 1 = strip bottom has left the top of the viewport
+    // We want the transition to drive through the strip as it scrolls up through the viewport.
     const rect = strip.getBoundingClientRect();
-    const vh = window.innerHeight;
-    // Start when strip bottom enters viewport, end when strip top exits
-    return Math.min(1, Math.max(0, (vh - rect.top) / (vh + strip.offsetHeight)));
+    const vh   = window.innerHeight;
+    // Start: strip.top === vh  (strip entering viewport from bottom)
+    // End:   strip.bottom === 0 (strip top about to leave viewport top)
+    const start = rect.top - vh;   // negative once strip enters viewport
+    const end   = rect.bottom;     // distance from strip bottom to viewport top
+    const total = strip.offsetHeight + vh;
+    return Math.min(1, Math.max(0, -start / total));
+  }
+
+  function setPixelState(p, newState) {
+    if (p.state === newState) return;
+    p.state = newState;
+
+    clearTimeout(p.accentTimer);
+
+    if (newState === 'bg') {
+      p.el.style.transition = 'background-color 120ms linear';
+      p.el.style.backgroundColor = 'transparent';
+    } else if (newState === 'accent') {
+      // Flash the supplemental color…
+      p.el.style.transition = 'background-color 120ms linear';
+      p.el.style.backgroundColor = p.accentColor;
+      // …then burn to white after a short hold
+      p.accentTimer = setTimeout(() => {
+        if (p.state === 'accent') {
+          p.state = 'white';
+          p.el.style.transition = 'background-color 160ms linear';
+          p.el.style.backgroundColor = '#ffffff';
+        }
+      }, 180);
+    } else if (newState === 'white') {
+      p.el.style.transition = 'background-color 120ms linear';
+      p.el.style.backgroundColor = '#ffffff';
+    }
   }
 
   function update() {
     const progress = getProgress();
-    if (Math.abs(progress - lastProgress) < 0.002) return;
+    if (Math.abs(progress - lastProgress) < 0.001) return;
     lastProgress = progress;
 
     pixels.forEach(p => {
-      if (progress >= p.threshold) {
-        // Flipped — show accent color or white
-        if (p.state !== 'flipped') {
-          p.state = 'flipped';
-          p.el.style.transition = 'background-color 120ms linear';
-          p.el.style.backgroundColor = p.color;
-          // If it's a brand accent, burn to white shortly after
-          if (p.color !== '#ffffff') {
-            setTimeout(() => {
-              p.el.style.backgroundColor = '#ffffff';
-            }, 140);
-          }
-        }
+      if (progress <= 0) {
+        // Strip not in view yet — all transparent (Purple 500 bg shows)
+        setPixelState(p, 'bg');
+      } else if (progress >= p.threshold) {
+        // This pixel has crossed its threshold — trigger accent→white
+        if (p.state === 'bg') setPixelState(p, 'accent');
       } else {
-        // Not yet flipped — transparent (strip background shows through)
-        if (p.state !== 'bg') {
-          p.state = 'bg';
-          p.el.style.transition = 'background-color 120ms linear';
-          p.el.style.backgroundColor = 'transparent';
+        // Not yet reached — keep transparent
+        if (p.state !== 'bg' && p.state !== 'accent' && p.state !== 'white') {
+          setPixelState(p, 'bg');
         }
+        // If scrolling back up and pixel was white, reverse it
+        if (p.state === 'white') setPixelState(p, 'bg');
       }
     });
   }
