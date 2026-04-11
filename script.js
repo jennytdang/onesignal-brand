@@ -152,10 +152,24 @@ sections.forEach(s => observer.observe(s));
 const toast = document.getElementById('toast');
 let toastTimer;
 
+// Clicking anywhere on a color card copies its hex value
+document.querySelectorAll('.color-card[data-copy]').forEach(card => {
+  card.addEventListener('click', () => {
+    navigator.clipboard.writeText(card.dataset.copy).then(() => {
+      clearTimeout(toastTimer);
+      toast.textContent = `Copied ${card.dataset.copy}`;
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    });
+  });
+});
+
+// Keep legacy copy-btn support for any remaining buttons elsewhere
 document.querySelectorAll('.copy-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     navigator.clipboard.writeText(btn.dataset.copy).then(() => {
       clearTimeout(toastTimer);
+      toast.textContent = 'Copied to clipboard';
       toast.classList.add('show');
       toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
     });
