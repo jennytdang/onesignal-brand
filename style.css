@@ -222,7 +222,7 @@ body {
 /* ── Sections ───────────────────────────────── */
 .section {
   padding: 64px;
-  scroll-margin-top: 32px;
+  scroll-margin-top: 0;
   margin-bottom: 0;
 }
 
