@@ -665,6 +665,7 @@ body {
 .clearspace-demo {
   background: #F5F6F8;
   padding: 40px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
