@@ -7,8 +7,8 @@
   const CELL_SIZE  = 40;
   const RADIUS     = 180;
   const MAX_ALPHA  = 0.22;
-  const DECAY      = 0.015; // how fast the trail fades per frame
-  const TRAIL_LEN  = 12;    // how many past positions to remember
+  const DECAY      = 0.004; // very slow fade — trail lingers ~4 seconds
+  const TRAIL_LEN  = 32;    // longer history buffer
 
   let cols = 0, rows = 0, cells = [];
   let mouseX = -9999, mouseY = -9999;
@@ -64,8 +64,8 @@
         const lx = pt.x - rect.left;
         const ly = pt.y - rect.top;
         const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
-        if (dist < RADIUS * 0.8) {
-          peak = Math.max(peak, MAX_ALPHA * (1 - dist / (RADIUS * 0.8)) * weight);
+      if (dist < RADIUS) {
+          peak = Math.max(peak, MAX_ALPHA * (1 - dist / RADIUS) * weight);
         }
       });
 
