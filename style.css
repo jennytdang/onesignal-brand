@@ -165,10 +165,9 @@ body {
 /* ── Hero ───────────────────────────────────── */
 .hero {
   background: linear-gradient(110deg, #4E50D1 0%, #4DA6EF 55%, #31E1DE 100%);
-  padding: 80px 64px 160px;
+  padding: 52px 64px 56px;
   position: relative;
   overflow: hidden;
-  min-height: 100vh; /* tall enough for scroll effect to play out */
 }
 
 /* Pixel canvas fills the hero exactly */
@@ -178,6 +177,27 @@ body {
   pointer-events: none;
   overflow: hidden;
   z-index: 0;
+  /* Mask: transparent at top → opaque in bottom 28% → fades to white at very bottom.
+     This keeps the gradient fully visible at the top, only lets pixels show in the
+     bottom band, and dissolves them into the page background so there's no hard clip. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 65%,
+    rgba(0,0,0,0.4) 75%,
+    rgba(0,0,0,1) 85%,
+    rgba(0,0,0,1) 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 65%,
+    rgba(0,0,0,0.4) 75%,
+    rgba(0,0,0,1) 85%,
+    rgba(0,0,0,1) 92%,
+    transparent 100%
+  );
 }
 
 .pixel-canvas .px {
@@ -191,7 +211,6 @@ body {
 .hero-content {
   position: relative;
   z-index: 1;
-  /* Keep content readable as pixels fill in */
   max-width: 640px;
 }
 

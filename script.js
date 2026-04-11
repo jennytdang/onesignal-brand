@@ -1,7 +1,7 @@
 // ── Pixel Hero Canvas ─────────────────────────
-// Scroll-driven pixel transition: brand colors → white as you scroll past the hero.
-// Each pixel has a random threshold. When scroll progress passes that threshold,
-// the pixel snaps to its brand color, then burns to white — exactly like the Framer component.
+// Scroll-driven pixel transition: brand colors → white in the bottom 25% of the hero.
+// Pixels are only active in the bottom band. A CSS mask fades the canvas into the
+// white page background so there's no hard clip.
 
 (function () {
   const canvas = document.getElementById('pixel-canvas');
@@ -9,9 +9,8 @@
   if (!canvas || !hero) return;
 
   const SIZE = 24;
-  const TRANSITION_MS = 120; // matches Framer's 120ms linear
+  const TRANSITION_MS = 120;
 
-  // OneSignal brand palette used as accent colors in the transition band
   const BRAND_COLORS = [
     '#4E50D1', // Purple 600
     '#7274DA', // Purple 500
@@ -20,17 +19,19 @@
     '#FFC072', // Yellow 300
   ];
 
-  // ~20% of pixels get a brand color accent; the rest go straight to white
-  // This matches Framer's "accent share" concept
+  // ~22% of pixels in the active zone get a brand color; the rest go straight to white
   const ACCENT_SHARE = 0.22;
 
-  let pixels = [];    // { el, threshold, color, state }
+  // The transition only occupies the bottom ZONE_FRAC of the hero height
+  // e.g. 0.28 = bottom 28% of the hero
+  const ZONE_FRAC = 0.28;
+
+  let pixels = [];
   let cols = 0, rows = 0;
   let lastProgress = -1;
 
   function pickColor(i) {
-    // Deterministically assign accent vs white per pixel based on index + salt
-    const salt = (i * 2654435761) >>> 0; // cheap hash
+    const salt = (i * 2654435761) >>> 0;
     return (salt % 100) < (ACCENT_SHARE * 100)
       ? BRAND_COLORS[salt % BRAND_COLORS.length]
       : '#ffffff';
@@ -43,48 +44,54 @@
     rows = Math.ceil(h / SIZE);
     const needed = cols * rows;
 
-    // Add
     while (pixels.length < needed) {
       const i = pixels.length;
+      const row = Math.floor(i / cols);
       const el = document.createElement('div');
       el.className = 'px';
       canvas.appendChild(el);
+
+      // Only pixels in the bottom ZONE_FRAC rows get a random threshold.
+      // Pixels above that zone stay permanently transparent.
+      const rowFrac = row / Math.max(rows - 1, 1); // 0 = top row, 1 = bottom row
+      const inZone = rowFrac >= (1 - ZONE_FRAC);
+      // Within the zone, remap rowFrac so the bottom row has threshold≈0
+      // and the zone top row has threshold≈1  →  scatter fills bottom-up
+      const zonePos = inZone
+        ? (rowFrac - (1 - ZONE_FRAC)) / ZONE_FRAC  // 0 (zone top) → 1 (bottom)
+        : null;
+
       pixels.push({
         el,
-        threshold: Math.random(), // random flip point in 0–1 scroll range
+        // threshold: where in scroll progress (0–1) this pixel flips
+        // pixels near the bottom flip first (low threshold), top of zone flip last
+        threshold: inZone ? Math.random() * 0.6 + zonePos * 0.4 : null,
         color: pickColor(i),
-        state: 'off',  // off | accent | white
+        state: 'off',
       });
     }
-    // Remove
+
     while (pixels.length > needed) {
       pixels.pop().el.remove();
     }
 
-    // Position
     pixels.forEach(({ el }, i) => {
       el.style.left = (i % cols) * SIZE + 'px';
       el.style.top  = Math.floor(i / cols) * SIZE + 'px';
       el.style.transition = `background-color ${TRANSITION_MS}ms linear`;
     });
 
-    lastProgress = -1; // force redraw
+    lastProgress = -1;
     applyScroll();
   }
 
   function getProgress() {
-    // 0 = hero top at viewport top
-    // 1 = hero fully scrolled out (bottom of hero at top of viewport)
+    // progress 0→1 maps to hero scrolling from fully visible → fully gone
     const rect = hero.getBoundingClientRect();
-    const heroH = hero.offsetHeight;
-    // We want the effect to complete as the hero scrolls away.
-    // progress goes from 0→1 as scroll goes from 0 → heroH
-    return Math.min(1, Math.max(0, -rect.top / heroH));
+    return Math.min(1, Math.max(0, -rect.top / hero.offsetHeight));
   }
 
-  // Band width: how wide (in progress units) the transition zone is.
-  // A narrower band = sharper wipe. 0.25 gives a nice soft scatter.
-  const BAND = 0.3;
+  const BAND = 0.25; // width of the scatter zone in progress units
 
   function applyScroll() {
     const progress = getProgress();
@@ -92,40 +99,25 @@
     lastProgress = progress;
 
     pixels.forEach(p => {
-      const t = p.threshold;
-
-      if (progress <= 0) {
-        // Fully at top — all pixels off (transparent, hero gradient shows through)
-        if (p.state !== 'off') {
-          p.state = 'off';
-          p.el.style.backgroundColor = 'transparent';
-        }
+      // Pixels outside the zone are always transparent
+      if (p.threshold === null) {
+        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
         return;
       }
 
-      // localP: how far this pixel is through its own transition (0=not started, 1=fully white)
-      // pixel starts turning when progress > threshold - BAND/2
-      // pixel finishes (turns white) when progress > threshold + BAND/2
-      const localP = Math.min(1, Math.max(0, (progress - (t - BAND / 2)) / BAND));
+      if (progress <= 0) {
+        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
+        return;
+      }
+
+      const localP = Math.min(1, Math.max(0, (progress - (p.threshold - BAND / 2)) / BAND));
 
       if (localP <= 0) {
-        // Not yet reached — transparent
-        if (p.state !== 'off') {
-          p.state = 'off';
-          p.el.style.backgroundColor = 'transparent';
-        }
+        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
       } else if (localP < 0.5) {
-        // In first half of band — show brand/accent color
-        if (p.state !== 'accent') {
-          p.state = 'accent';
-          p.el.style.backgroundColor = p.color;
-        }
+        if (p.state !== 'accent') { p.state = 'accent'; p.el.style.backgroundColor = p.color; }
       } else {
-        // Past midpoint — burn to white
-        if (p.state !== 'white') {
-          p.state = 'white';
-          p.el.style.backgroundColor = '#ffffff';
-        }
+        if (p.state !== 'white') { p.state = 'white'; p.el.style.backgroundColor = '#ffffff'; }
       }
     });
   }
