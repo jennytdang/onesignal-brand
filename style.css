@@ -26,7 +26,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-body);
-  color: var(--black);
+  color: var(--gray-800);
   background: #fff;
   display: flex;
   min-height: 100vh;
@@ -239,13 +239,25 @@ body {
 
 .section-header {
   display: flex;
-  align-items: baseline;
-  gap: 0;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
 .section-number {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple-600);
+  background: var(--purple-100);
+  border: 1.5px solid var(--purple-600);
+  border-radius: 100px;
+  padding: 4px 12px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
 .section-title {
@@ -270,7 +282,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gray-400);
+  color: var(--black);
   margin: 40px 0 16px;
 }
 
