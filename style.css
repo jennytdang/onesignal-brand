@@ -199,7 +199,7 @@ body {
   font-family: var(--font-heading);
   font-size: 12px;
   font-weight: 500;
-  padding: 5px 16px;
+  padding: 8px 16px 6px 16px;
   border-radius: 100px;
   margin-bottom: 24px;
 }
@@ -252,10 +252,10 @@ body {
   font-size: 12px;
   font-weight: 700;
   color: var(--purple-600);
-  background: var(--purple-100);
+  background: transparent;
   border: 1.5px solid var(--purple-600);
   border-radius: 100px;
-  padding: 4px 12px;
+  padding: 8px 16px 6px 16px;
   letter-spacing: 0.02em;
   flex-shrink: 0;
 }
