@@ -68,7 +68,7 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 6px;
   flex: 1;
 }
 
