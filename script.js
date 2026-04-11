@@ -4,7 +4,7 @@
   const grid = document.getElementById('hero-grid');
   if (!hero || !grid) return;
 
-  const CELL_SIZE = 60;
+  const CELL_SIZE = 40;
   const RADIUS    = 180;
   const MAX_ALPHA = 0.18;
 
