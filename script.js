@@ -5,26 +5,36 @@
   if (!canvas) return;
 
   const SIZE = 24;
-  // Colors pulled from the OneSignal brand palette + white/transparent for sparsity
-  const COLORS = [
-    'rgba(255,255,255,0.18)',
-    'rgba(255,255,255,0.32)',
-    'rgba(255,255,255,0.08)',
-    'rgba(49,225,222,0.5)',   // Cyan 300
-    'rgba(255,192,114,0.45)', // Yellow 300
-    'rgba(78,80,209,0.6)',    // Purple 600
-    'rgba(77,166,239,0.45)',  // Blue 400
-    'transparent',
-    'transparent',
-    'transparent',
-    'transparent',
-    'transparent',
+
+  // OneSignal brand palette — pixels flash one of these colors, then burn to white, then fade out
+  const BRAND_COLORS = [
+    '#4E50D1', // Purple 600
+    '#7274DA', // Purple 500
+    '#4DA6EF', // Blue 400
+    '#31E1DE', // Cyan 300
+    '#FFC072', // Yellow 300
   ];
+
+  // Weighted pool: brand colors appear, with some slots weighted toward white
+  // so the effect has occasional pure-white flashes too (matches Framer's "accent" pixels)
+  const COLOR_POOL = [
+    ...BRAND_COLORS,
+    ...BRAND_COLORS, // double the brand colors for density
+    '#ffffff',       // occasional white flash
+    '#ffffff',
+  ];
+
+  const SPAWN_RATE  = 0.022; // fraction of grid spawned per tick
+  const TICK_MS     = 160;   // ms between ticks
+  const PHASE1_MS   = 80;    // brand color hold
+  const PHASE2_MS   = 180;   // burn to white (offset from start)
+  const PHASE3_MS   = 340;   // fade to transparent (offset from start)
 
   let pixels = [];
   let cols = 0;
   let rows = 0;
-  let intervalId = null;
+  let tickId = null;
+  const animating = new Set(); // prevent re-triggering mid-animation
 
   function build() {
     const w = canvas.offsetWidth;
@@ -33,48 +43,72 @@
     rows = Math.ceil(h / SIZE);
     const needed = cols * rows;
 
-    // Add missing pixels
     while (pixels.length < needed) {
       const el = document.createElement('div');
       el.className = 'px';
       canvas.appendChild(el);
       pixels.push(el);
     }
-    // Remove extras
     while (pixels.length > needed) {
       const el = pixels.pop();
+      animating.delete(el);
       el.remove();
     }
 
-    // Position all
     pixels.forEach((el, i) => {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      el.style.left = col * SIZE + 'px';
-      el.style.top = row * SIZE + 'px';
+      el.style.left = (i % cols) * SIZE + 'px';
+      el.style.top  = Math.floor(i / cols) * SIZE + 'px';
     });
   }
 
-  function flicker() {
-    // Randomly light up ~3% of pixels each tick
-    const count = Math.max(1, Math.floor(pixels.length * 0.03));
-    for (let i = 0; i < count; i++) {
-      const idx = Math.floor(Math.random() * pixels.length);
-      pixels[idx].style.backgroundColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+  function animatePixel(el) {
+    if (animating.has(el)) return;
+    animating.add(el);
+
+    const color = COLOR_POOL[Math.floor(Math.random() * COLOR_POOL.length)];
+
+    // Phase 1 — snap to brand color
+    el.style.transition = `background-color ${PHASE1_MS}ms linear`;
+    el.style.backgroundColor = color;
+
+    // Phase 2 — burn to white
+    const t2 = setTimeout(() => {
+      el.style.transition = `background-color ${PHASE2_MS - PHASE1_MS}ms linear`;
+      el.style.backgroundColor = '#ffffff';
+    }, PHASE1_MS + 20);
+
+    // Phase 3 — fade out
+    const t3 = setTimeout(() => {
+      el.style.transition = `background-color ${500}ms linear`;
+      el.style.backgroundColor = 'transparent';
+    }, PHASE2_MS + 40);
+
+    // Release lock after full cycle
+    setTimeout(() => {
+      animating.delete(el);
+    }, PHASE3_MS + 520);
+  }
+
+  function tick() {
+    const count = Math.max(1, Math.floor(pixels.length * SPAWN_RATE));
+    // Shuffle a slice of the pixel pool to avoid repeating same indices
+    const available = pixels.filter(el => !animating.has(el));
+    for (let i = 0; i < Math.min(count, available.length); i++) {
+      const idx = Math.floor(Math.random() * available.length);
+      animatePixel(available.splice(idx, 1)[0]);
     }
   }
 
   function start() {
     build();
-    if (intervalId) clearInterval(intervalId);
-    intervalId = setInterval(flicker, 120);
+    if (tickId) clearInterval(tickId);
+    tickId = setInterval(tick, TICK_MS);
   }
 
-  // Rebuild on resize
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { build(); }, 150);
+    resizeTimer = setTimeout(build, 150);
   });
 
   start();
