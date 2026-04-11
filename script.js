@@ -1,133 +1,119 @@
 // ── Hero Grid Line Glow ───────────────────────
-// Draws a grid on a canvas overlay. Grid lines near the cursor
-// glow brightly with a trail that lingers and fades out.
-
 (function () {
   const hero = document.getElementById('hero');
   const gridEl = document.getElementById('hero-grid');
   if (!hero || !gridEl) return;
 
-  // Replace the div grid with a canvas
   gridEl.innerHTML = '';
-  const canvas = document.createElement('canvas');
-  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
-  gridEl.appendChild(canvas);
-  const ctx = canvas.getContext('2d');
 
-  const CELL      = 40;       // grid cell size px
-  const RADIUS    = 160;      // cursor influence radius px
-  const FADE      = 0.03;     // decay per frame — lower = longer trail
-  const MAX_GLOW  = 1.0;      // max line brightness (0–1)
-  const BASE_ALPHA = 0.06;    // resting grid line opacity
+  // Two canvases: base grid (static) + glow layer (animated)
+  const baseCanvas = document.createElement('canvas');
+  const glowCanvas = document.createElement('canvas');
+  [baseCanvas, glowCanvas].forEach(c => {
+    c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+    gridEl.appendChild(c);
+  });
+
+  const base = baseCanvas.getContext('2d');
+  const glow = glowCanvas.getContext('2d');
+
+  const CELL       = 40;
+  const RADIUS     = 180;   // glow radius
+  const FADE       = 0.025; // trail decay per frame
+  const BASE_ALPHA = 0.06;  // resting grid line opacity
+  const GLOW_ALPHA = 0.85;  // peak glow line opacity
 
   let W = 0, H = 0;
-  let hLines = [], vLines = []; // each line has { pos, glow }
+  let hLines = [], vLines = [];
   let mouseX = -9999, mouseY = -9999;
   let rafId = null;
 
   function resize() {
     W = hero.offsetWidth;
     H = hero.offsetHeight;
-    canvas.width  = W;
-    canvas.height = H;
+    baseCanvas.width  = glowCanvas.width  = W;
+    baseCanvas.height = glowCanvas.height = H;
 
-    // Build horizontal lines
     hLines = [];
     for (let y = CELL; y < H; y += CELL) hLines.push({ pos: y, glow: 0 });
-
-    // Build vertical lines
     vLines = [];
     for (let x = CELL; x < W; x += CELL) vLines.push({ pos: x, glow: 0 });
+
+    drawBase();
+  }
+
+  function drawBase() {
+    base.clearRect(0, 0, W, H);
+    base.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
+    base.lineWidth = 0.5;
+    hLines.forEach(l => {
+      base.beginPath(); base.moveTo(0, l.pos); base.lineTo(W, l.pos); base.stroke();
+    });
+    vLines.forEach(l => {
+      base.beginPath(); base.moveTo(l.pos, 0); base.lineTo(l.pos, H); base.stroke();
+    });
   }
 
   function render() {
     rafId = requestAnimationFrame(render);
+    glow.clearRect(0, 0, W, H);
 
-    ctx.clearRect(0, 0, W, H);
-
-    // Update glow values — each line segment glows based on
-    // proximity of its CLOSEST POINT to cursor, not the whole line
+    // Update glow values
     hLines.forEach(line => {
       const dy = Math.abs(line.pos - mouseY);
-      const target = (mouseX > -8000 && dy < RADIUS) ? MAX_GLOW * (1 - dy / RADIUS) : 0;
+      const target = mouseX > -8000 && dy < RADIUS ? (1 - dy / RADIUS) : 0;
       line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
     });
-
     vLines.forEach(line => {
       const dx = Math.abs(line.pos - mouseX);
-      const target = (mouseX > -8000 && dx < RADIUS) ? MAX_GLOW * (1 - dx / RADIUS) : 0;
+      const target = mouseX > -8000 && dx < RADIUS ? (1 - dx / RADIUS) : 0;
       line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
     });
 
-    // Draw horizontal lines — only glow within the circle
+    // Draw crisp glowing lines at full canvas width/height
     hLines.forEach(line => {
-      // Base resting line
-      ctx.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(0, line.pos);
-      ctx.lineTo(W, line.pos);
-      ctx.stroke();
-
-      // Glow segment — only within RADIUS circle around cursor
-      if (line.glow > 0.005 && mouseX > -8000) {
-        const halfArc = Math.sqrt(Math.max(0, RADIUS * RADIUS - Math.pow(line.pos - mouseY, 2)));
-        const x0 = Math.max(0, mouseX - halfArc);
-        const x1 = Math.min(W, mouseX + halfArc);
-
-        // Soft glow
-        ctx.save();
-        ctx.filter = `blur(${6 * line.glow}px)`;
-        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.6).toFixed(3)})`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(x0, line.pos);
-        ctx.lineTo(x1, line.pos);
-        ctx.stroke();
-        ctx.restore();
-
-        // Crisp bright segment
-        ctx.strokeStyle = `rgba(255,255,255,${(BASE_ALPHA + line.glow * 0.9).toFixed(3)})`;
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x0, line.pos);
-        ctx.lineTo(x1, line.pos);
-        ctx.stroke();
-      }
+      if (line.glow < 0.005) return;
+      glow.strokeStyle = `rgba(255,255,255,${(line.glow * GLOW_ALPHA).toFixed(3)})`;
+      glow.lineWidth = 0.5;
+      glow.beginPath();
+      glow.moveTo(0, line.pos);
+      glow.lineTo(W, line.pos);
+      glow.stroke();
     });
-
-    // Draw vertical lines — only glow within the circle
     vLines.forEach(line => {
-      ctx.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(line.pos, 0);
-      ctx.lineTo(line.pos, H);
-      ctx.stroke();
-
-      if (line.glow > 0.005 && mouseX > -8000) {
-        const halfArc = Math.sqrt(Math.max(0, RADIUS * RADIUS - Math.pow(line.pos - mouseX, 2)));
-        const y0 = Math.max(0, mouseY - halfArc);
-        const y1 = Math.min(H, mouseY + halfArc);
-
-        ctx.save();
-        ctx.filter = `blur(${6 * line.glow}px)`;
-        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.6).toFixed(3)})`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(line.pos, y0);
-        ctx.lineTo(line.pos, y1);
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.strokeStyle = `rgba(255,255,255,${(BASE_ALPHA + line.glow * 0.9).toFixed(3)})`;
-        ctx.lineWidth = 0.5;
-        ctx.beginPath();
-        ctx.moveTo(line.pos, y0);
-        ctx.lineTo(line.pos, y1);
-        ctx.stroke();
-      }
+      if (line.glow < 0.005) return;
+      glow.strokeStyle = `rgba(255,255,255,${(line.glow * GLOW_ALPHA).toFixed(3)})`;
+      glow.lineWidth = 0.5;
+      glow.beginPath();
+      glow.moveTo(line.pos, 0);
+      glow.lineTo(line.pos, H);
+      glow.stroke();
     });
+
+    // Apply radial gradient mask so glow softly fades at the edges
+    // Use 'destination-in' to mask with a soft radial gradient
+    if (mouseX > -8000) {
+      const grad = glow.createRadialGradient(
+        mouseX, mouseY, 0,
+        mouseX, mouseY, RADIUS
+      );
+      grad.addColorStop(0,   'rgba(0,0,0,1)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0.85)');
+      grad.addColorStop(1,   'rgba(0,0,0,0)');
+      glow.globalCompositeOperation = 'destination-in';
+      glow.fillStyle = grad;
+      glow.fillRect(0, 0, W, H);
+      glow.globalCompositeOperation = 'source-over';
+    } else {
+      // Cursor gone — let trail fade with its own soft mask centered on last known pos
+      glow.globalCompositeOperation = 'destination-in';
+      const anyGlow = hLines.some(l => l.glow > 0.005) || vLines.some(l => l.glow > 0.005);
+      if (!anyGlow) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      glow.globalCompositeOperation = 'source-over';
+    }
 
     const anyLit = hLines.some(l => l.glow > 0.005) || vLines.some(l => l.glow > 0.005);
     if (!anyLit && mouseX < -8000) {
@@ -141,15 +127,15 @@
   }
 
   hero.addEventListener('mousemove', e => {
-    mouseX = e.clientX - hero.getBoundingClientRect().left;
-    mouseY = e.clientY - hero.getBoundingClientRect().top;
+    const rect = hero.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
     startRender();
   });
 
   hero.addEventListener('mouseleave', () => {
     mouseX = -9999;
     mouseY = -9999;
-    // keep animating so trail fades naturally
   });
 
   let resizeTimer;
@@ -159,7 +145,7 @@
   });
 
   resize();
-  startRender(); // draw resting state immediately
+  startRender();
 })();
 
 // ── Active nav on scroll ──────────────────────
