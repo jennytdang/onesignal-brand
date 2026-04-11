@@ -4,6 +4,7 @@
   --purple-600: #4E50D1;
   --purple-500: #7274DA;
   --purple-50: #F5F4FE;
+  --white: #FFFFFF;
   --black: #051B2C;
   --blue-400: #4DA6EF;
   --cyan-300: #31E1DE;
@@ -400,7 +401,7 @@ body {
 .type-specimen.epilogue {
   font-family: var(--font-heading);
   background: var(--black);
-  color: var(--purple-600);
+  color: var(--white);
 }
 
 .type-specimen.nunito {
