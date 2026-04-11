@@ -308,11 +308,6 @@ body {
   transform: translateY(-1px);
 }
 
-.color-card:active {
-  transform: translateY(0px);
-  box-shadow: none;
-}
-
 .color-card .swatch {
   height: 120px;
   background: var(--swatch);
