@@ -168,9 +168,24 @@ body {
 
 /* ── Hero ───────────────────────────────────── */
 .hero {
-  background: url('hero-bg.png') center center / cover no-repeat;
+  background: linear-gradient(to right, #7274DA, #4DA6EF);
   padding: 120px 64px 140px;
   position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-grid-cell {
+  border: 1px solid rgba(255,255,255,0.07);
+  background-color: transparent;
+  transition: background-color 500ms ease-out;
 }
 
 .hero-content {
@@ -178,7 +193,6 @@ body {
   z-index: 1;
   max-width: 640px;
 }
-
 .hero-pill {
   display: inline-block;
   border: 1.5px solid rgba(255,255,255,0.7);
