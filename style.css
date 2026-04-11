@@ -177,15 +177,12 @@ body {
 .hero-grid {
   position: absolute;
   inset: 0;
-  display: grid;
   z-index: 0;
   pointer-events: none;
 }
 
 .hero-grid-cell {
-  border: 0.5px solid rgba(255,255,255,0.04);
-  background-color: transparent;
-  mix-blend-mode: screen;
+  display: none;
 }
 
 .hero-content {

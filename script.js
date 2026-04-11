@@ -1,121 +1,111 @@
-// ── Hero Cursor-Reactive Grid ─────────────────
+// ── Hero Grid Line Glow ───────────────────────
+// Draws a grid on a canvas overlay. Grid lines near the cursor
+// glow brightly with a trail that lingers and fades out.
+
 (function () {
   const hero = document.getElementById('hero');
-  const grid = document.getElementById('hero-grid');
-  if (!hero || !grid) return;
+  const gridEl = document.getElementById('hero-grid');
+  if (!hero || !gridEl) return;
 
-  // Config — tune these to taste
-  const CONFIG = {
-    cellSize:       40,
-    glowIntensity:  0.9,    // max brightness of activated cells
-    fadeSpeed:      0.03,   // lower = longer trail
-    trailLength:    80,     // radius of cursor activation (px)
-    gooeyEnabled:   true,   // liquid blending between neighbors
-    gooeyStrength:  8,      // influence of neighbors
-    pulseEnabled:   false,  // subtle pulse on active cells
-    pulseSpeed:     2,      // pulse animation speed
-  };
+  // Replace the div grid with a canvas
+  gridEl.innerHTML = '';
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
+  gridEl.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
 
-  let cols = 0, rows = 0, cells = [];
+  const CELL      = 40;       // grid cell size px
+  const RADIUS    = 160;      // cursor influence radius px
+  const FADE      = 0.03;     // decay per frame — lower = longer trail
+  const MAX_GLOW  = 1.0;      // max line brightness (0–1)
+  const BASE_ALPHA = 0.06;    // resting grid line opacity
+
+  let W = 0, H = 0;
+  let hLines = [], vLines = []; // each line has { pos, glow }
   let mouseX = -9999, mouseY = -9999;
   let rafId = null;
-  let time = 0;
 
-  function build() {
-    const w = hero.offsetWidth;
-    const h = hero.offsetHeight;
-    cols = Math.ceil(w / CONFIG.cellSize);
-    rows = Math.ceil(h / CONFIG.cellSize);
-    grid.style.gridTemplateColumns = `repeat(${cols}, ${CONFIG.cellSize}px)`;
-    grid.style.gridTemplateRows    = `repeat(${rows}, ${CONFIG.cellSize}px)`;
-    grid.innerHTML = '';
-    cells = [];
-    for (let i = 0; i < cols * rows; i++) {
-      const el = document.createElement('div');
-      el.className = 'hero-grid-cell';
-      grid.appendChild(el);
-      cells.push({ el, alpha: 0, raw: 0 });
-    }
+  function resize() {
+    W = hero.offsetWidth;
+    H = hero.offsetHeight;
+    canvas.width  = W;
+    canvas.height = H;
+
+    // Build horizontal lines
+    hLines = [];
+    for (let y = CELL; y < H; y += CELL) hLines.push({ pos: y, glow: 0 });
+
+    // Build vertical lines
+    vLines = [];
+    for (let x = CELL; x < W; x += CELL) vLines.push({ pos: x, glow: 0 });
   }
 
   function render() {
     rafId = requestAnimationFrame(render);
-    time += 0.016;
 
-    const rect = hero.getBoundingClientRect();
-    const lx = mouseX - rect.left;
-    const ly = mouseY - rect.top;
-    const R  = CONFIG.trailLength;
+    ctx.clearRect(0, 0, W, H);
 
-    // Pass 1 — compute raw cursor influence
-    cells.forEach((c, i) => {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const cx  = col * CONFIG.cellSize + CONFIG.cellSize / 2;
-      const cy  = row * CONFIG.cellSize + CONFIG.cellSize / 2;
-      const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
-      const target = dist < R
-        ? CONFIG.glowIntensity * (1 - dist / R)
-        : 0;
-
-      // Snap up instantly, decay slowly
-      if (target > c.raw) {
-        c.raw = target;
-      } else {
-        c.raw = Math.max(0, c.raw - CONFIG.fadeSpeed);
-      }
-    });
-
-    // Pass 2 — gooey: blend each cell with its neighbors
     let anyLit = false;
-    cells.forEach((c, i) => {
-      let blended = c.raw;
 
-      if (CONFIG.gooeyEnabled) {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        let neighborSum = 0, neighborCount = 0;
+    // Update + draw horizontal lines
+    hLines.forEach(line => {
+      const dist = Math.abs(line.pos - mouseY);
+      const target = dist < RADIUS ? MAX_GLOW * (1 - dist / RADIUS) : 0;
+      line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
+      if (line.glow > 0.005) anyLit = true;
 
-        // Sample 4 cardinal neighbors
-        const neighbors = [
-          i - cols,       // up
-          i + cols,       // down
-          col > 0 ? i - 1 : -1,       // left
-          col < cols - 1 ? i + 1 : -1 // right
-        ];
-
-        neighbors.forEach(ni => {
-          if (ni >= 0 && ni < cells.length) {
-            neighborSum += cells[ni].raw;
-            neighborCount++;
-          }
-        });
-
-        if (neighborCount > 0) {
-          const neighborAvg = neighborSum / neighborCount;
-          const gooeyInfluence = neighborAvg * (CONFIG.gooeyStrength / 100);
-          blended = Math.min(CONFIG.glowIntensity, c.raw + gooeyInfluence);
-        }
+      const alpha = BASE_ALPHA + line.glow * (1 - BASE_ALPHA);
+      // Glow: wide soft stroke + sharp center line
+      if (line.glow > 0.01) {
+        const blurSize = 12 * line.glow;
+        ctx.save();
+        ctx.filter = `blur(${blurSize}px)`;
+        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.5).toFixed(3)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, line.pos);
+        ctx.lineTo(W, line.pos);
+        ctx.stroke();
+        ctx.restore();
       }
-
-      // Pulse modifier
-      if (CONFIG.pulseEnabled && blended > 0.01) {
-        const pulse = 1 + 0.15 * Math.sin(time * CONFIG.pulseSpeed * Math.PI * 2);
-        blended = Math.min(CONFIG.glowIntensity, blended * pulse);
-      }
-
-      c.alpha = blended;
-
-      if (c.alpha > 0.003) {
-        anyLit = true;
-        c.el.style.backgroundColor = `rgba(255,255,255,${c.alpha.toFixed(3)})`;
-      } else if (c.el.style.backgroundColor !== 'transparent') {
-        c.alpha = 0;
-        c.el.style.backgroundColor = 'transparent';
-      }
+      // Crisp line on top
+      ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(0, line.pos);
+      ctx.lineTo(W, line.pos);
+      ctx.stroke();
     });
 
-    // Stop loop if nothing is lit and cursor is outside
+    // Update + draw vertical lines
+    vLines.forEach(line => {
+      const dist = Math.abs(line.pos - mouseX);
+      const target = dist < RADIUS ? MAX_GLOW * (1 - dist / RADIUS) : 0;
+      line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
+      if (line.glow > 0.005) anyLit = true;
+
+      const alpha = BASE_ALPHA + line.glow * (1 - BASE_ALPHA);
+      if (line.glow > 0.01) {
+        const blurSize = 12 * line.glow;
+        ctx.save();
+        ctx.filter = `blur(${blurSize}px)`;
+        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.5).toFixed(3)})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(line.pos, 0);
+        ctx.lineTo(line.pos, H);
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(line.pos, 0);
+      ctx.lineTo(line.pos, H);
+      ctx.stroke();
+    });
+
+    // Stop animating once everything fades out and cursor is gone
     if (!anyLit && mouseX < -8000) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -127,24 +117,25 @@
   }
 
   hero.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    mouseX = e.clientX - hero.getBoundingClientRect().left;
+    mouseY = e.clientY - hero.getBoundingClientRect().top;
     startRender();
   });
 
   hero.addEventListener('mouseleave', () => {
     mouseX = -9999;
     mouseY = -9999;
-    // keep animating so trail fades out naturally
+    // keep animating so trail fades naturally
   });
 
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(build, 150);
+    resizeTimer = setTimeout(() => { resize(); startRender(); }, 150);
   });
 
-  build();
+  resize();
+  startRender(); // draw resting state immediately
 })();
 
 // ── Active nav on scroll ──────────────────────
