@@ -45,67 +45,91 @@
 
     ctx.clearRect(0, 0, W, H);
 
-    let anyLit = false;
-
-    // Update + draw horizontal lines
+    // Update glow values — each line segment glows based on
+    // proximity of its CLOSEST POINT to cursor, not the whole line
     hLines.forEach(line => {
-      const dist = Math.abs(line.pos - mouseY);
-      const target = dist < RADIUS ? MAX_GLOW * (1 - dist / RADIUS) : 0;
+      const dy = Math.abs(line.pos - mouseY);
+      const target = (mouseX > -8000 && dy < RADIUS) ? MAX_GLOW * (1 - dy / RADIUS) : 0;
       line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
-      if (line.glow > 0.005) anyLit = true;
+    });
 
-      const alpha = BASE_ALPHA + line.glow * (1 - BASE_ALPHA);
-      // Glow: wide soft stroke + sharp center line
-      if (line.glow > 0.01) {
-        const blurSize = 12 * line.glow;
-        ctx.save();
-        ctx.filter = `blur(${blurSize}px)`;
-        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.5).toFixed(3)})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, line.pos);
-        ctx.lineTo(W, line.pos);
-        ctx.stroke();
-        ctx.restore();
-      }
-      // Crisp line on top
-      ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
+    vLines.forEach(line => {
+      const dx = Math.abs(line.pos - mouseX);
+      const target = (mouseX > -8000 && dx < RADIUS) ? MAX_GLOW * (1 - dx / RADIUS) : 0;
+      line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
+    });
+
+    // Draw horizontal lines — only glow within the circle
+    hLines.forEach(line => {
+      // Base resting line
+      ctx.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
       ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.moveTo(0, line.pos);
       ctx.lineTo(W, line.pos);
       ctx.stroke();
-    });
 
-    // Update + draw vertical lines
-    vLines.forEach(line => {
-      const dist = Math.abs(line.pos - mouseX);
-      const target = dist < RADIUS ? MAX_GLOW * (1 - dist / RADIUS) : 0;
-      line.glow = target > line.glow ? target : Math.max(0, line.glow - FADE);
-      if (line.glow > 0.005) anyLit = true;
+      // Glow segment — only within RADIUS circle around cursor
+      if (line.glow > 0.005 && mouseX > -8000) {
+        const halfArc = Math.sqrt(Math.max(0, RADIUS * RADIUS - Math.pow(line.pos - mouseY, 2)));
+        const x0 = Math.max(0, mouseX - halfArc);
+        const x1 = Math.min(W, mouseX + halfArc);
 
-      const alpha = BASE_ALPHA + line.glow * (1 - BASE_ALPHA);
-      if (line.glow > 0.01) {
-        const blurSize = 12 * line.glow;
+        // Soft glow
         ctx.save();
-        ctx.filter = `blur(${blurSize}px)`;
-        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.5).toFixed(3)})`;
-        ctx.lineWidth = 2;
+        ctx.filter = `blur(${6 * line.glow}px)`;
+        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(line.pos, 0);
-        ctx.lineTo(line.pos, H);
+        ctx.moveTo(x0, line.pos);
+        ctx.lineTo(x1, line.pos);
         ctx.stroke();
         ctx.restore();
+
+        // Crisp bright segment
+        ctx.strokeStyle = `rgba(255,255,255,${(BASE_ALPHA + line.glow * 0.9).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x0, line.pos);
+        ctx.lineTo(x1, line.pos);
+        ctx.stroke();
       }
-      ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
+    });
+
+    // Draw vertical lines — only glow within the circle
+    vLines.forEach(line => {
+      ctx.strokeStyle = `rgba(255,255,255,${BASE_ALPHA})`;
       ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.moveTo(line.pos, 0);
       ctx.lineTo(line.pos, H);
       ctx.stroke();
+
+      if (line.glow > 0.005 && mouseX > -8000) {
+        const halfArc = Math.sqrt(Math.max(0, RADIUS * RADIUS - Math.pow(line.pos - mouseX, 2)));
+        const y0 = Math.max(0, mouseY - halfArc);
+        const y1 = Math.min(H, mouseY + halfArc);
+
+        ctx.save();
+        ctx.filter = `blur(${6 * line.glow}px)`;
+        ctx.strokeStyle = `rgba(255,255,255,${(line.glow * 0.6).toFixed(3)})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(line.pos, y0);
+        ctx.lineTo(line.pos, y1);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.strokeStyle = `rgba(255,255,255,${(BASE_ALPHA + line.glow * 0.9).toFixed(3)})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(line.pos, y0);
+        ctx.lineTo(line.pos, y1);
+        ctx.stroke();
+      }
     });
 
-    // Stop animating once everything fades out and cursor is gone
+    const anyLit = hLines.some(l => l.glow > 0.005) || vLines.some(l => l.glow > 0.005);
     if (!anyLit && mouseX < -8000) {
       cancelAnimationFrame(rafId);
       rafId = null;
