@@ -167,6 +167,28 @@ body {
   background: linear-gradient(110deg, #4E50D1 0%, #4DA6EF 55%, #31E1DE 100%);
   padding: 52px 64px 56px;
   position: relative;
+  overflow: hidden;
+}
+
+.pixel-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.pixel-canvas .px {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transition: background-color 120ms linear;
+  background-color: transparent;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-pill {

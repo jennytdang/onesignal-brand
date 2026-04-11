@@ -1,3 +1,85 @@
+// ── Pixel Hero Canvas ─────────────────────────
+
+(function () {
+  const canvas = document.getElementById('pixel-canvas');
+  if (!canvas) return;
+
+  const SIZE = 24;
+  // Colors pulled from the OneSignal brand palette + white/transparent for sparsity
+  const COLORS = [
+    'rgba(255,255,255,0.18)',
+    'rgba(255,255,255,0.32)',
+    'rgba(255,255,255,0.08)',
+    'rgba(49,225,222,0.5)',   // Cyan 300
+    'rgba(255,192,114,0.45)', // Yellow 300
+    'rgba(78,80,209,0.6)',    // Purple 600
+    'rgba(77,166,239,0.45)',  // Blue 400
+    'transparent',
+    'transparent',
+    'transparent',
+    'transparent',
+    'transparent',
+  ];
+
+  let pixels = [];
+  let cols = 0;
+  let rows = 0;
+  let intervalId = null;
+
+  function build() {
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    cols = Math.ceil(w / SIZE);
+    rows = Math.ceil(h / SIZE);
+    const needed = cols * rows;
+
+    // Add missing pixels
+    while (pixels.length < needed) {
+      const el = document.createElement('div');
+      el.className = 'px';
+      canvas.appendChild(el);
+      pixels.push(el);
+    }
+    // Remove extras
+    while (pixels.length > needed) {
+      const el = pixels.pop();
+      el.remove();
+    }
+
+    // Position all
+    pixels.forEach((el, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      el.style.left = col * SIZE + 'px';
+      el.style.top = row * SIZE + 'px';
+    });
+  }
+
+  function flicker() {
+    // Randomly light up ~3% of pixels each tick
+    const count = Math.max(1, Math.floor(pixels.length * 0.03));
+    for (let i = 0; i < count; i++) {
+      const idx = Math.floor(Math.random() * pixels.length);
+      pixels[idx].style.backgroundColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+    }
+  }
+
+  function start() {
+    build();
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(flicker, 120);
+  }
+
+  // Rebuild on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { build(); }, 150);
+  });
+
+  start();
+})();
+
 // Active nav on scroll
 const sections = document.querySelectorAll('.section');
 const navLinks = document.querySelectorAll('.nav-link');
