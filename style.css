@@ -776,8 +776,9 @@ body {
 .logo-bg-label {
   font-size: 11px;
   font-family: var(--font-heading);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* ── Voice & Tone ───────────────────────────── */
