@@ -162,7 +162,21 @@
   startRender();
 })();
 
-// ── Active nav on scroll ──────────────────────
+// ── Nav click: scroll precisely to section top ─
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', e => {
+    const href = link.getAttribute('href');
+    if (!href || !href.startsWith('#')) return;
+    const target = document.querySelector(href);
+    if (!target) return;
+    e.preventDefault();
+    // Scroll so the section top is exactly at the top of the viewport
+    const top = target.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+});
+
+
 const sections = document.querySelectorAll('.section');
 const navLinks = document.querySelectorAll('.nav-link');
 
