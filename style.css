@@ -164,7 +164,7 @@ body {
 
 /* ── Hero ───────────────────────────────────── */
 .hero {
-  background: #7274DA;
+  background: linear-gradient(135deg, #31E1DE 0%, #4DA6EF 20%, #7274DA 40%, #7274DA 100%);
   padding: 52px 64px 56px;
   position: relative;
 }
