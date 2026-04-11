@@ -66,6 +66,23 @@
       el.style.transition = 'none';
       el.style.backgroundColor = BG_COLOR;
     });
+
+    // Render immediately at a starting progress so the pixelated edge
+    // is visible on page load — no solid cutoff
+    requestAnimationFrame(() => {
+      const progress = getProgress();
+      // If strip is already partially visible (e.g. short viewport), use real progress.
+      // Otherwise seed with 0.18 so bottom rows are already pixelated on load.
+      const initProgress = Math.max(progress, 0.18);
+      pixels.forEach(p => {
+        let target;
+        if (initProgress < p.t1)      target = BG_COLOR;
+        else if (initProgress < p.t2) target = p.accent;
+        else                          target = WHITE;
+        p.color = target;
+        p.el.style.backgroundColor = target;
+      });
+    });
   }
 
   function getProgress() {
