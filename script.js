@@ -29,10 +29,19 @@
   let rafId = null;
 
   function resize() {
+    const dpr = window.devicePixelRatio || 1;
     W = hero.offsetWidth;
     H = hero.offsetHeight;
-    baseCanvas.width  = glowCanvas.width  = W;
-    baseCanvas.height = glowCanvas.height = H;
+
+    [baseCanvas, glowCanvas].forEach(c => {
+      c.width  = W * dpr;
+      c.height = H * dpr;
+      c.style.width  = W + 'px';
+      c.style.height = H + 'px';
+    });
+
+    base.setTransform(dpr, 0, 0, dpr, 0, 0);
+    glow.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     hLines = [];
     for (let y = CELL; y < H; y += CELL) hLines.push({ pos: y, glow: 0 });
@@ -56,6 +65,8 @@
 
   function render() {
     rafId = requestAnimationFrame(render);
+    const dpr = window.devicePixelRatio || 1;
+    glow.setTransform(dpr, 0, 0, dpr, 0, 0);
     glow.clearRect(0, 0, W, H);
 
     // Update glow values
