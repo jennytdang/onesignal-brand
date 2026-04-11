@@ -10,7 +10,8 @@
   if (!strip) return;
 
   const SIZE = 24;
-  const BG_COLOR = '#7274DA'; // Purple 500 — matches hero, pixels invisible until scrolled
+
+  // OneSignal supplemental colors — these are what pop in before white
   const ACCENT_COLORS = [
     '#4DA6EF', // Blue 400
     '#31E1DE', // Cyan 300
@@ -69,12 +70,10 @@
     pixels.forEach(({ el }, i) => {
       el.style.left = (i % cols) * SIZE + 'px';
       el.style.top  = Math.floor(i / cols) * SIZE + 'px';
-      el.style.transition = 'none';
-      el.style.backgroundColor = BG_COLOR;
     });
 
     lastProgress = -1;
-    // Don't call update() on init — nothing shows until scroll begins
+    update();
   }
 
   function getProgress() {
@@ -99,7 +98,7 @@
 
     if (newState === 'bg') {
       p.el.style.transition = 'background-color 120ms linear';
-      p.el.style.backgroundColor = BG_COLOR;
+      p.el.style.backgroundColor = 'transparent';
     } else if (newState === 'accent') {
       // Flash the supplemental color…
       p.el.style.transition = 'background-color 120ms linear';
@@ -124,11 +123,6 @@
     lastProgress = progress;
 
     pixels.forEach(p => {
-      // Re-enable transitions on first scroll call (they're disabled during init)
-      if (p.el.style.transition === 'none') {
-        p.el.style.transition = 'background-color 120ms linear';
-      }
-
       if (progress <= 0) {
         // Strip not in view yet — all transparent (Purple 500 bg shows)
         setPixelState(p, 'bg');
