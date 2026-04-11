@@ -1,16 +1,20 @@
-// ── Pixel Hero Canvas ─────────────────────────
-// Scroll-driven pixel transition: brand colors → white in the bottom 25% of the hero.
-// Pixels are only active in the bottom band. A CSS mask fades the canvas into the
-// white page background so there's no hard clip.
+// ── Pixel Strip Transition ────────────────────
+// Matches the Framer PixelScrollTransition component exactly:
+// - A fixed-height strip sits between the hero (gradient) and white page content
+// - Strip background = hero gradient color (continues visually from hero)
+// - Each pixel has a random threshold (0–1)
+// - As the strip scrolls into view, pixels whose threshold < scroll progress
+//   flip: first to a brand accent color, then immediately to white (#fff)
+// - Bottom rows flip first (fills bottom-up), top rows last
+// - Result: gradient "dissolves" into white pixel by pixel
 
 (function () {
-  const canvas = document.getElementById('pixel-canvas');
-  const hero   = canvas && canvas.closest('.hero');
-  if (!canvas || !hero) return;
+  const strip = document.getElementById('pixel-strip');
+  if (!strip) return;
 
   const SIZE = 24;
-  const TRANSITION_MS = 120;
 
+  // OneSignal brand colors used as accent flashes (like Framer's "accent pixels")
   const BRAND_COLORS = [
     '#4E50D1', // Purple 600
     '#7274DA', // Purple 500
@@ -18,28 +22,24 @@
     '#31E1DE', // Cyan 300
     '#FFC072', // Yellow 300
   ];
-
-  // ~22% of pixels in the active zone get a brand color; the rest go straight to white
-  const ACCENT_SHARE = 0.22;
-
-  // The transition only occupies the bottom ZONE_FRAC of the hero height
-  // e.g. 0.28 = bottom 28% of the hero
-  const ZONE_FRAC = 0.28;
+  const ACCENT_SHARE = 0.20; // 20% of pixels flash a brand color before going white
 
   let pixels = [];
   let cols = 0, rows = 0;
   let lastProgress = -1;
 
+  // Each pixel gets a color: brand accent or white (determined once, deterministically)
   function pickColor(i) {
-    const salt = (i * 2654435761) >>> 0;
-    return (salt % 100) < (ACCENT_SHARE * 100)
-      ? BRAND_COLORS[salt % BRAND_COLORS.length]
-      : '#ffffff';
+    const hash = Math.imul(i ^ (i >>> 16), 0x45d9f3b) >>> 0;
+    if ((hash % 100) < (ACCENT_SHARE * 100)) {
+      return BRAND_COLORS[hash % BRAND_COLORS.length];
+    }
+    return '#ffffff';
   }
 
   function build() {
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
+    const w = strip.offsetWidth;
+    const h = strip.offsetHeight;
     cols = Math.ceil(w / SIZE);
     rows = Math.ceil(h / SIZE);
     const needed = cols * rows;
@@ -49,26 +49,16 @@
       const row = Math.floor(i / cols);
       const el = document.createElement('div');
       el.className = 'px';
-      canvas.appendChild(el);
+      strip.appendChild(el);
 
-      // Only pixels in the bottom ZONE_FRAC rows get a random threshold.
-      // Pixels above that zone stay permanently transparent.
-      const rowFrac = row / Math.max(rows - 1, 1); // 0 = top row, 1 = bottom row
-      const inZone = rowFrac >= (1 - ZONE_FRAC);
-      // Within the zone, remap rowFrac so the bottom row has threshold≈0
-      // and the zone top row has threshold≈1  →  scatter fills bottom-up
-      const zonePos = inZone
-        ? (rowFrac - (1 - ZONE_FRAC)) / ZONE_FRAC  // 0 (zone top) → 1 (bottom)
-        : null;
+      // Threshold: bottom rows flip first (threshold near 0), top rows last (near 1)
+      // Add per-pixel randomness within each row so it scatters, not a clean line
+      const rowFrac = row / Math.max(rows - 1, 1); // 0=top, 1=bottom
+      const baseThreshold = 1 - rowFrac; // bottom=0, top=1
+      const jitter = (Math.random() - 0.5) * 0.3;
+      const threshold = Math.min(1, Math.max(0, baseThreshold + jitter));
 
-      pixels.push({
-        el,
-        // threshold: where in scroll progress (0–1) this pixel flips
-        // pixels near the bottom flip first (low threshold), top of zone flip last
-        threshold: inZone ? Math.random() * 0.6 + zonePos * 0.4 : null,
-        color: pickColor(i),
-        state: 'off',
-      });
+      pixels.push({ el, threshold, color: pickColor(i), state: 'bg' });
     }
 
     while (pixels.length > needed) {
@@ -78,51 +68,52 @@
     pixels.forEach(({ el }, i) => {
       el.style.left = (i % cols) * SIZE + 'px';
       el.style.top  = Math.floor(i / cols) * SIZE + 'px';
-      el.style.transition = `background-color ${TRANSITION_MS}ms linear`;
     });
 
     lastProgress = -1;
-    applyScroll();
+    update();
   }
 
   function getProgress() {
-    // progress 0→1 maps to hero scrolling from fully visible → fully gone
-    const rect = hero.getBoundingClientRect();
-    return Math.min(1, Math.max(0, -rect.top / hero.offsetHeight));
+    // progress 0 = strip bottom just entering viewport
+    // progress 1 = strip top at viewport top (fully scrolled through)
+    const rect = strip.getBoundingClientRect();
+    const vh = window.innerHeight;
+    // Start when strip bottom enters viewport, end when strip top exits
+    return Math.min(1, Math.max(0, (vh - rect.top) / (vh + strip.offsetHeight)));
   }
 
-  const BAND = 0.25; // width of the scatter zone in progress units
-
-  function applyScroll() {
+  function update() {
     const progress = getProgress();
-    if (Math.abs(progress - lastProgress) < 0.001) return;
+    if (Math.abs(progress - lastProgress) < 0.002) return;
     lastProgress = progress;
 
     pixels.forEach(p => {
-      // Pixels outside the zone are always transparent
-      if (p.threshold === null) {
-        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
-        return;
-      }
-
-      if (progress <= 0) {
-        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
-        return;
-      }
-
-      const localP = Math.min(1, Math.max(0, (progress - (p.threshold - BAND / 2)) / BAND));
-
-      if (localP <= 0) {
-        if (p.state !== 'off') { p.state = 'off'; p.el.style.backgroundColor = 'transparent'; }
-      } else if (localP < 0.5) {
-        if (p.state !== 'accent') { p.state = 'accent'; p.el.style.backgroundColor = p.color; }
+      if (progress >= p.threshold) {
+        // Flipped — show accent color or white
+        if (p.state !== 'flipped') {
+          p.state = 'flipped';
+          p.el.style.transition = 'background-color 120ms linear';
+          p.el.style.backgroundColor = p.color;
+          // If it's a brand accent, burn to white shortly after
+          if (p.color !== '#ffffff') {
+            setTimeout(() => {
+              p.el.style.backgroundColor = '#ffffff';
+            }, 140);
+          }
+        }
       } else {
-        if (p.state !== 'white') { p.state = 'white'; p.el.style.backgroundColor = '#ffffff'; }
+        // Not yet flipped — transparent (strip background shows through)
+        if (p.state !== 'bg') {
+          p.state = 'bg';
+          p.el.style.transition = 'background-color 120ms linear';
+          p.el.style.backgroundColor = 'transparent';
+        }
       }
     });
   }
 
-  window.addEventListener('scroll', applyScroll, { passive: true });
+  window.addEventListener('scroll', update, { passive: true });
 
   let resizeTimer;
   window.addEventListener('resize', () => {

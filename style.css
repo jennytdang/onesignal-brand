@@ -167,51 +167,36 @@ body {
   background: linear-gradient(110deg, #4E50D1 0%, #4DA6EF 55%, #31E1DE 100%);
   padding: 52px 64px 56px;
   position: relative;
-  overflow: hidden;
-}
-
-/* Pixel canvas fills the hero exactly */
-.pixel-canvas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-  /* Mask: transparent at top → opaque in bottom 28% → fades to white at very bottom.
-     This keeps the gradient fully visible at the top, only lets pixels show in the
-     bottom band, and dissolves them into the page background so there's no hard clip. */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    transparent 65%,
-    rgba(0,0,0,0.4) 75%,
-    rgba(0,0,0,1) 85%,
-    rgba(0,0,0,1) 92%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    transparent 65%,
-    rgba(0,0,0,0.4) 75%,
-    rgba(0,0,0,1) 85%,
-    rgba(0,0,0,1) 92%,
-    transparent 100%
-  );
-}
-
-.pixel-canvas .px {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  transition: background-color 120ms linear;
-  background-color: transparent;
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
   max-width: 640px;
+}
+
+/* ── Pixel Strip ────────────────────────────── */
+/* A fixed-height strip that sits between the hero and the first content section.
+   Background = the hero gradient end color (so it looks like the bottom of the hero).
+   Pixels start as that color and flip to white (the page bg) as you scroll — 
+   exactly matching the Framer PixelScrollTransition pattern. */
+.pixel-strip {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  /* Match the rightmost stop of the hero gradient so the strip feels continuous */
+  background: linear-gradient(110deg, #4E50D1 0%, #4DA6EF 55%, #31E1DE 100%);
+  margin-bottom: 0;
+}
+
+.pixel-strip .px {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  transition: background-color 120ms linear;
+  /* Start as the strip background color — will flip to white or brand accent */
+  background-color: transparent;
 }
 
 .hero-pill {
