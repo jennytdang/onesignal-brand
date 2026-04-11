@@ -90,18 +90,7 @@
       const py = Math.round(p.row * dpr);
       const ps = Math.round(CELL * dpr);
 
-      // Soft glow behind
-      const glowSize = ps * (1 + (1 - progress) * 0.3);
-      const grd = tctx.createRadialGradient(
-        px + ps / 2, py + ps / 2, 0,
-        px + ps / 2, py + ps / 2, glowSize * 0.8
-      );
-      grd.addColorStop(0, `rgba(${r},${g},${b},${(alpha * 0.4).toFixed(3)})`);
-      grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
-      tctx.fillStyle = grd;
-      tctx.fillRect(px - glowSize * 0.3, py - glowSize * 0.3, ps + glowSize * 0.6, ps + glowSize * 0.6);
-
-      // Crisp pixel square on top
+      // Crisp pixel square only — no glow
       tctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
       tctx.fillRect(px, py, ps, ps);
     });
