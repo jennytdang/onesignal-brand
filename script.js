@@ -4,13 +4,17 @@
   const grid = document.getElementById('hero-grid');
   if (!hero || !grid) return;
 
-  const CELL_SIZE = 40;
-  const RADIUS    = 180;
-  const MAX_ALPHA = 0.18;
+  const CELL_SIZE  = 40;
+  const RADIUS     = 180;
+  const MAX_ALPHA  = 0.22;
+  const DECAY      = 0.015; // how fast the trail fades per frame
+  const TRAIL_LEN  = 12;    // how many past positions to remember
 
   let cols = 0, rows = 0, cells = [];
   let mouseX = -9999, mouseY = -9999;
+  let trail = [];           // ring buffer of recent { x, y }
   let rafId = null;
+  let animating = false;
 
   function build() {
     const w = hero.offsetWidth;
@@ -25,37 +29,88 @@
       const el = document.createElement('div');
       el.className = 'hero-grid-cell';
       grid.appendChild(el);
-      cells.push({ el, lit: 0 });
+      cells.push({ el, alpha: 0 });
     }
+    trail = [];
   }
 
   function render() {
     rafId = null;
     const rect = hero.getBoundingClientRect();
-    const lx = mouseX - rect.left;
-    const ly = mouseY - rect.top;
+
+    // Build combined influence from current pos + trail history
+    // Each trail point fades based on how old it is
+    let anyLit = false;
+
     cells.forEach((c, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
       const cx  = col * CELL_SIZE + CELL_SIZE / 2;
       const cy  = row * CELL_SIZE + CELL_SIZE / 2;
-      const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
-      const alpha = dist < RADIUS ? MAX_ALPHA * (1 - dist / RADIUS) : 0;
-      if (Math.abs(alpha - c.lit) > 0.002) {
-        c.lit = alpha;
-        c.el.style.backgroundColor = alpha > 0
-          ? `rgba(255,255,255,${alpha.toFixed(3)})` : 'transparent';
+
+      // Current cursor influence
+      let peak = 0;
+      if (mouseX > -9000) {
+        const lx = mouseX - rect.left;
+        const ly = mouseY - rect.top;
+        const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
+        if (dist < RADIUS) peak = MAX_ALPHA * (1 - dist / RADIUS);
+      }
+
+      // Trail influence — older points have less weight
+      trail.forEach((pt, ti) => {
+        const age    = (trail.length - ti) / trail.length; // 0=new, 1=oldest
+        const weight = (1 - age) * 0.7;
+        const lx = pt.x - rect.left;
+        const ly = pt.y - rect.top;
+        const dist = Math.sqrt((cx - lx) ** 2 + (cy - ly) ** 2);
+        if (dist < RADIUS * 0.8) {
+          peak = Math.max(peak, MAX_ALPHA * (1 - dist / (RADIUS * 0.8)) * weight);
+        }
+      });
+
+      // Decay existing alpha toward peak — snap up fast, fade slowly
+      if (peak > c.alpha) {
+        c.alpha = peak; // instant on
+      } else {
+        c.alpha = Math.max(0, c.alpha - DECAY); // slow decay
+      }
+
+      if (c.alpha > 0.001) {
+        anyLit = true;
+        c.el.style.backgroundColor = `rgba(255,255,255,${c.alpha.toFixed(3)})`;
+      } else if (c.alpha <= 0.001 && c.el.style.backgroundColor !== 'transparent') {
+        c.alpha = 0;
+        c.el.style.backgroundColor = 'transparent';
       }
     });
+
+    // Keep animating while any cell is still glowing
+    if (anyLit || mouseX > -9000) {
+      rafId = requestAnimationFrame(render);
+    } else {
+      animating = false;
+    }
+  }
+
+  function startRender() {
+    if (!rafId) rafId = requestAnimationFrame(render);
+    animating = true;
   }
 
   hero.addEventListener('mousemove', e => {
-    mouseX = e.clientX; mouseY = e.clientY;
-    if (!rafId) rafId = requestAnimationFrame(render);
+    // Push to trail ring buffer
+    trail.push({ x: e.clientX, y: e.clientY });
+    if (trail.length > TRAIL_LEN) trail.shift();
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    startRender();
   });
+
   hero.addEventListener('mouseleave', () => {
-    mouseX = -9999; mouseY = -9999;
-    if (!rafId) rafId = requestAnimationFrame(render);
+    mouseX = -9999;
+    mouseY = -9999;
+    startRender(); // let decay animation finish
   });
 
   let resizeTimer;
@@ -66,6 +121,7 @@
 
   build();
 })();
+
 
 // ── Active nav on scroll ──────────────────────
 const sections = document.querySelectorAll('.section');
