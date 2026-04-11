@@ -53,14 +53,14 @@ body {
 }
 
 .sidebar-logo-img {
-  height: 22px;
+  height: 32px;
   width: auto;
   display: block;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: #D8D8D8;
+  background: #F3F4F5;
   margin-bottom: 28px;
 }
 
