@@ -46,16 +46,18 @@
       el.className = 'px';
       strip.appendChild(el);
 
-      // Row bias: bottom rows flip first, top rows last
       const rowFrac = row / Math.max(rows - 1, 1); // 0=top, 1=bottom
       const base    = 1 - rowFrac;
       const jitter  = (Math.random() - 0.5) * 0.4;
 
-      // t1 = when accent color appears, t2 = when white appears (slightly after)
       const t1 = Math.min(0.97, Math.max(0.03, base + jitter));
       const t2 = Math.min(0.99, t1 + 0.06 + Math.random() * 0.06);
 
-      pixels.push({ el, t1, t2, accent: pickAccent(i), color: null });
+      // Scout pixels: sparse white squares visible in the upper purple zone
+      // before the main wave arrives. Only appear in upper 60% of strip (~5% density).
+      const isScout = rowFrac < 0.6 && Math.random() < 0.05;
+
+      pixels.push({ el, t1, t2, accent: pickAccent(i), color: null, isScout });
     }
 
     while (pixels.length > needed) pixels.pop().el.remove();
@@ -67,18 +69,16 @@
       el.style.backgroundColor = BG_COLOR;
     });
 
-    // Render immediately at a starting progress so the pixelated edge
-    // is visible on page load — no solid cutoff
+    // Render immediately — scouts show as white, bottom rows already pixelated
     requestAnimationFrame(() => {
       const progress = getProgress();
-      // If strip is already partially visible (e.g. short viewport), use real progress.
-      // Otherwise seed with 0.18 so bottom rows are already pixelated on load.
       const initProgress = Math.max(progress, 0.18);
       pixels.forEach(p => {
         let target;
-        if (initProgress < p.t1)      target = BG_COLOR;
-        else if (initProgress < p.t2) target = p.accent;
-        else                          target = WHITE;
+        if (p.isScout)                    target = WHITE;  // scouts always start white
+        else if (initProgress < p.t1)     target = BG_COLOR;
+        else if (initProgress < p.t2)     target = p.accent;
+        else                              target = WHITE;
         p.color = target;
         p.el.style.backgroundColor = target;
       });
@@ -101,10 +101,11 @@
 
     pixels.forEach(p => {
       let target;
-      if (progress <= 0)         target = BG_COLOR;
-      else if (progress < p.t1)  target = BG_COLOR;
-      else if (progress < p.t2)  target = p.accent;
-      else                       target = WHITE;
+      if (p.isScout && progress < p.t1)  target = WHITE;       // scout: white until wave arrives
+      else if (progress <= 0)            target = BG_COLOR;
+      else if (progress < p.t1)          target = BG_COLOR;
+      else if (progress < p.t2)          target = p.accent;
+      else                               target = WHITE;
 
       if (p.color !== target) {
         p.color = target;
