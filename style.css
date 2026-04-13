@@ -565,10 +565,13 @@ body {
 .icon-card-img-wrap {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  aspect-ratio: 1 / 1;
 }
 
 .icon-card-img-wrap svg,
