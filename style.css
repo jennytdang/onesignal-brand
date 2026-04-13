@@ -275,6 +275,16 @@ body {
   margin-bottom: 36px;
 }
 
+.inline-link {
+  color: var(--purple-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inline-link:hover {
+  color: var(--purple-700, #2F31B1);
+}
+
 .subsection-title {
   font-family: var(--font-heading);
   font-size: 13px;
