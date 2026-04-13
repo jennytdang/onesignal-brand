@@ -357,67 +357,95 @@ if (menuBtn) {
       const imgWrap = document.createElement('div');
       imgWrap.className = 'icon-card-img-wrap';
 
-      const img = document.createElement('img');
-      img.src = icon.url;
-      img.alt = icon.name;
-      img.loading = 'lazy';
+      // Load SVG inline so we can control viewBox padding
+      fetch(icon.url)
+        .then(r => r.text())
+        .then(svgText => {
+          // Parse and expand viewBox by 2px on each side for breathing room
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgEl = doc.querySelector('svg');
+          if (svgEl) {
+            const vb = svgEl.getAttribute('viewBox') || '0 0 24 24';
+            const [minX, minY, w, h] = vb.split(' ').map(Number);
+            const pad = 2;
+            svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
+            svgEl.setAttribute('width', '32');
+            svgEl.setAttribute('height', '32');
+            svgEl.removeAttribute('xmlns');
+            imgWrap.innerHTML = svgEl.outerHTML;
+          }
+        })
+        .catch(() => {
+          // Fallback to img tag
+          const img = document.createElement('img');
+          img.src = icon.url;
+          img.alt = icon.name;
+          img.width = 32;
+          img.height = 32;
+          imgWrap.appendChild(img);
+        });
 
       const label = document.createElement('span');
       label.className = 'icon-card-name';
       label.textContent = `icn-${icon.name}`;
 
-      imgWrap.appendChild(img);
+      imgWrap.appendChild(document.createTextNode('')); // placeholder
       card.appendChild(imgWrap);
       card.appendChild(label);
 
-      // Click to copy the image as PNG to clipboard via canvas
+      // Click to copy as PNG
       card.addEventListener('click', async () => {
         try {
-          // Draw to canvas and export as PNG blob
-          const canvas = document.createElement('canvas');
           const SIZE = 256;
-          canvas.width = SIZE;
-          canvas.height = SIZE;
-          const ctx = canvas.getContext('2d');
+          const PAD = 16; // padding inside the 256x256 canvas
+          const response = await fetch(icon.url);
+          const svgText = await response.text();
 
-          // Ensure image is loaded
-          if (!img.complete || img.naturalWidth === 0) {
-            await new Promise((res, rej) => {
-              img.onload = res;
-              img.onerror = rej;
-            });
-          }
+          // Parse SVG and expand viewBox with padding
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgEl = doc.querySelector('svg');
+          const vb = svgEl.getAttribute('viewBox') || '0 0 24 24';
+          const [minX, minY, w, h] = vb.split(' ').map(Number);
+          const pad = 2;
+          svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
+          svgEl.setAttribute('width', SIZE);
+          svgEl.setAttribute('height', SIZE);
+          const svgString = new XMLSerializer().serializeToString(svgEl);
+          const blob = new Blob([svgString], { type: 'image/svg+xml' });
+          const url = URL.createObjectURL(blob);
 
-          // Scale to fit longest dimension into SIZE, preserve aspect ratio, center
-          const w = img.naturalWidth || SIZE;
-          const h = img.naturalHeight || SIZE;
-          const scale = SIZE / Math.max(w, h);
-          const drawW = w * scale;
-          const drawH = h * scale;
-          const offsetX = (SIZE - drawW) / 2;
-          const offsetY = (SIZE - drawH) / 2;
-          ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = SIZE;
+            canvas.height = SIZE;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, SIZE, SIZE);
+            URL.revokeObjectURL(url);
 
-          canvas.toBlob(async (blob) => {
-            try {
-              await navigator.clipboard.write([
-                new ClipboardItem({ 'image/png': blob })
-              ]);
-              card.classList.add('copied');
-              setTimeout(() => card.classList.remove('copied'), 1200);
-              clearTimeout(toastTimer);
-              toast.textContent = `Copied icn-${icon.name}`;
-              toast.classList.add('show');
-              toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
-            } catch (e) {
-              // Fallback: copy name
-              navigator.clipboard.writeText(`icn-${icon.name}`);
-              clearTimeout(toastTimer);
-              toast.textContent = `Copied name: icn-${icon.name}`;
-              toast.classList.add('show');
-              toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
-            }
-          }, 'image/png');
+            canvas.toBlob(async (pngBlob) => {
+              try {
+                await navigator.clipboard.write([
+                  new ClipboardItem({ 'image/png': pngBlob })
+                ]);
+                card.classList.add('copied');
+                setTimeout(() => card.classList.remove('copied'), 1200);
+                clearTimeout(toastTimer);
+                toast.textContent = `Copied icn-${icon.name}`;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+              } catch (e) {
+                navigator.clipboard.writeText(`icn-${icon.name}`);
+                clearTimeout(toastTimer);
+                toast.textContent = `Copied name: icn-${icon.name}`;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+              }
+            }, 'image/png');
+          };
+          img.src = url;
         } catch (err) {
           navigator.clipboard.writeText(`icn-${icon.name}`);
           clearTimeout(toastTimer);

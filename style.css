@@ -561,11 +561,10 @@ body {
   flex-shrink: 0;
 }
 
+.icon-card-img-wrap svg,
 .icon-card img {
-  max-width: 32px;
-  max-height: 32px;
-  width: auto;
-  height: auto;
+  width: 32px;
+  height: 32px;
   display: block;
   object-fit: contain;
 }
