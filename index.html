@@ -557,33 +557,21 @@
         <div class="icon-meta-item"><span class="icon-meta-label">Source</span><a href="https://www.streamlinehq.com" target="_blank" class="icon-meta-link">streamlinehq.com ↗</a></div>
       </div>
 
-      <h3 class="subsection-title">Icon showcase</h3>
-      <p class="section-intro" style="margin-bottom: 16px;">Use <strong>Purple-600</strong> icons over light colored backgrounds and <strong>White</strong> icons over darker colored backgrounds. Default size is <strong>24×24px</strong>.</p>
+      <h3 class="subsection-title">Icon library</h3>
+      <p class="section-intro" style="margin-bottom: 16px;">Click any icon to copy it as a PNG. Use <strong>Purple-600</strong> on light backgrounds and <strong>White</strong> on dark backgrounds.</p>
 
-      <div class="icon-showcase-panels">
-        <div class="icon-showcase-panel light">
-          <div class="icon-showcase-label">Purple-600 on light backgrounds</div>
-          <div class="icon-showcase-img-wrap">
-            <iframe
-              src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FttCoKtcutw4heSAeKSGhPq%2F%F0%9F%92%BB-Web-Design-System%3Fnode-id%3D2547-967"
-              class="icon-figma-embed"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <a href="https://www.streamlinehq.com" target="_blank" class="icon-source-link">View on Streamline ↗</a>
-        </div>
-        <div class="icon-showcase-panel dark">
-          <div class="icon-showcase-label">White on dark backgrounds</div>
-          <div class="icon-showcase-img-wrap" style="background:#051B2C; padding:0;">
-            <iframe
-              src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fdesign%2FttCoKtcutw4heSAeKSGhPq%2F%F0%9F%92%BB-Web-Design-System%3Fnode-id%3D2548-204"
-              class="icon-figma-embed"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <a href="https://www.streamlinehq.com" target="_blank" class="icon-source-link">View on Streamline ↗</a>
+      <div class="icon-grid-controls">
+        <input type="text" class="icon-search" id="iconSearch" placeholder="Search icons…" />
+        <div class="icon-variant-toggle">
+          <button class="icon-variant-btn active" id="btnPurple" data-variant="purple">Purple</button>
+          <button class="icon-variant-btn" id="btnWhite" data-variant="white">White</button>
         </div>
       </div>
+
+      <div class="icon-grid" id="iconGrid" data-variant="purple">
+      </div>
+
+      <p class="icon-grid-empty" id="iconGridEmpty" style="display:none;">No icons match your search.</p>
 
       <h3 class="subsection-title">Usage guidelines</h3>
       <div class="icon-usage-grid">
