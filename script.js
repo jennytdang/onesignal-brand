@@ -344,6 +344,36 @@ if (menuBtn) {
 
   if (!grid) return;
 
+  let currentVariant = 'purple';
+
+  function processSvg(svgText, variant) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, 'image/svg+xml');
+    const svgEl = doc.querySelector('svg');
+    if (!svgEl) return null;
+
+    // Expand viewBox by 2px on each side for breathing room
+    const vb = svgEl.getAttribute('viewBox') || '0 0 24 24';
+    const [minX, minY, w, h] = vb.split(' ').map(Number);
+    const pad = 2;
+    svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
+    svgEl.setAttribute('width', '32');
+    svgEl.setAttribute('height', '32');
+    svgEl.removeAttribute('xmlns');
+
+    // Swap fill/stroke color for white variant
+    if (variant === 'white') {
+      let html = svgEl.outerHTML;
+      html = html.replace(/#4E50D1/gi, '#ffffff');
+      html = html.replace(/fill="#[0-9a-f]{3,6}"/gi, m =>
+        m.toLowerCase().includes('none') ? m : 'fill="#ffffff"'
+      );
+      return html;
+    }
+
+    return svgEl.outerHTML;
+  }
+
   function renderGrid(filter = '') {
     const filtered = icons.filter(ic => ic.name.includes(filter.toLowerCase()));
     grid.innerHTML = '';
@@ -357,27 +387,14 @@ if (menuBtn) {
       const imgWrap = document.createElement('div');
       imgWrap.className = 'icon-card-img-wrap';
 
-      // Load SVG inline so we can control viewBox padding
+      // Load SVG inline so we can control viewBox padding and color
       fetch(icon.url)
         .then(r => r.text())
         .then(svgText => {
-          // Parse and expand viewBox by 2px on each side for breathing room
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(svgText, 'image/svg+xml');
-          const svgEl = doc.querySelector('svg');
-          if (svgEl) {
-            const vb = svgEl.getAttribute('viewBox') || '0 0 24 24';
-            const [minX, minY, w, h] = vb.split(' ').map(Number);
-            const pad = 2;
-            svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
-            svgEl.setAttribute('width', '32');
-            svgEl.setAttribute('height', '32');
-            svgEl.removeAttribute('xmlns');
-            imgWrap.innerHTML = svgEl.outerHTML;
-          }
+          const html = processSvg(svgText, currentVariant);
+          if (html) imgWrap.innerHTML = html;
         })
         .catch(() => {
-          // Fallback to img tag
           const img = document.createElement('img');
           img.src = icon.url;
           img.alt = icon.name;
@@ -394,26 +411,18 @@ if (menuBtn) {
       card.appendChild(imgWrap);
       card.appendChild(label);
 
-      // Click to copy as PNG
+      // Click to copy as PNG — uses current variant color
       card.addEventListener('click', async () => {
         try {
           const SIZE = 256;
-          const PAD = 16; // padding inside the 256x256 canvas
           const response = await fetch(icon.url);
           const svgText = await response.text();
 
-          // Parse SVG and expand viewBox with padding
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(svgText, 'image/svg+xml');
-          const svgEl = doc.querySelector('svg');
-          const vb = svgEl.getAttribute('viewBox') || '0 0 24 24';
-          const [minX, minY, w, h] = vb.split(' ').map(Number);
-          const pad = 2;
-          svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
-          svgEl.setAttribute('width', SIZE);
-          svgEl.setAttribute('height', SIZE);
-          const svgString = new XMLSerializer().serializeToString(svgEl);
-          const blob = new Blob([svgString], { type: 'image/svg+xml' });
+          // Process SVG with correct color + padded viewBox
+          let svgHtml = processSvg(svgText, currentVariant);
+          // Set size for canvas rendering
+          svgHtml = svgHtml.replace(/width="32"/, `width="${SIZE}"`).replace(/height="32"/, `height="${SIZE}"`);
+          const blob = new Blob([svgHtml], { type: 'image/svg+xml' });
           const url = URL.createObjectURL(blob);
 
           const img = new Image();
@@ -463,12 +472,14 @@ if (menuBtn) {
 
   btnPurple.addEventListener('click', () => {
     grid.dataset.variant = 'purple';
+    currentVariant = 'purple';
     btnPurple.classList.add('active');
     btnWhite.classList.remove('active');
     renderGrid(searchInput.value);
   });
 
   btnWhite.addEventListener('click', () => {
+    currentVariant = 'white';
     grid.dataset.variant = 'white';
     btnWhite.classList.add('active');
     btnPurple.classList.remove('active');
