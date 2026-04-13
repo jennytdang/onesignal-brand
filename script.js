@@ -361,13 +361,17 @@ if (menuBtn) {
     svgEl.setAttribute('height', '32');
     svgEl.removeAttribute('xmlns');
 
-    // Swap fill/stroke color for white variant
+    // Swap fill/stroke color for white variant — skip fills inside <defs>
     if (variant === 'white') {
+      // Remove defs section temporarily, swap colors, restore
+      const defsMatch = svgEl.outerHTML.match(/<defs>[\s\S]*?<\/defs>/);
       let html = svgEl.outerHTML;
+      // Only replace #4E50D1 fill (our brand purple)
       html = html.replace(/#4E50D1/gi, '#ffffff');
-      html = html.replace(/fill="#[0-9a-f]{3,6}"/gi, m =>
-        m.toLowerCase().includes('none') ? m : 'fill="#ffffff"'
-      );
+      // Restore defs unchanged if they existed
+      if (defsMatch) {
+        html = html.replace(/<defs>[\s\S]*?<\/defs>/, defsMatch[0].replace(/#ffffff/gi, '#4E50D1'));
+      }
       return html;
     }
 
