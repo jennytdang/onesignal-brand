@@ -361,8 +361,6 @@ if (menuBtn) {
       img.src = icon.url;
       img.alt = icon.name;
       img.loading = 'lazy';
-      img.width = 32;
-      img.height = 32;
 
       const label = document.createElement('span');
       label.className = 'icon-card-name';
@@ -377,8 +375,9 @@ if (menuBtn) {
         try {
           // Draw to canvas and export as PNG blob
           const canvas = document.createElement('canvas');
-          canvas.width = 256;
-          canvas.height = 256;
+          const SIZE = 256;
+          canvas.width = SIZE;
+          canvas.height = SIZE;
           const ctx = canvas.getContext('2d');
 
           // Ensure image is loaded
@@ -389,7 +388,15 @@ if (menuBtn) {
             });
           }
 
-          ctx.drawImage(img, 0, 0, 256, 256);
+          // Scale to fit longest dimension into SIZE, preserve aspect ratio, center
+          const w = img.naturalWidth || SIZE;
+          const h = img.naturalHeight || SIZE;
+          const scale = SIZE / Math.max(w, h);
+          const drawW = w * scale;
+          const drawH = h * scale;
+          const offsetX = (SIZE - drawW) / 2;
+          const offsetY = (SIZE - drawH) / 2;
+          ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
 
           canvas.toBlob(async (blob) => {
             try {
