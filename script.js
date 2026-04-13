@@ -358,11 +358,12 @@ if (menuBtn) {
       imgWrap.className = 'icon-card-img-wrap';
 
       const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';
       img.src = icon.url;
       img.alt = icon.name;
       img.loading = 'lazy';
-      img.width = 24;
-      img.height = 24;
+      img.width = 32;
+      img.height = 32;
 
       const label = document.createElement('span');
       label.className = 'icon-card-name';
@@ -372,24 +373,46 @@ if (menuBtn) {
       card.appendChild(imgWrap);
       card.appendChild(label);
 
-      // Click to copy the image as PNG to clipboard
+      // Click to copy the image as PNG to clipboard via canvas
       card.addEventListener('click', async () => {
         try {
-          // Fetch the image and copy to clipboard as PNG
-          const response = await fetch(icon.url);
-          const blob = await response.blob();
-          const pngBlob = blob.type === 'image/png' ? blob : await convertToPng(img);
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': pngBlob })
-          ]);
-          card.classList.add('copied');
-          setTimeout(() => card.classList.remove('copied'), 1200);
-          clearTimeout(toastTimer);
-          toast.textContent = `Copied icn-${icon.name}`;
-          toast.classList.add('show');
-          toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+          // Draw to canvas and export as PNG blob
+          const canvas = document.createElement('canvas');
+          canvas.width = 24;
+          canvas.height = 24;
+          const ctx = canvas.getContext('2d');
+
+          // Ensure image is loaded
+          if (!img.complete || img.naturalWidth === 0) {
+            await new Promise((res, rej) => {
+              img.onload = res;
+              img.onerror = rej;
+            });
+          }
+
+          ctx.drawImage(img, 0, 0, 24, 24);
+
+          canvas.toBlob(async (blob) => {
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+              ]);
+              card.classList.add('copied');
+              setTimeout(() => card.classList.remove('copied'), 1200);
+              clearTimeout(toastTimer);
+              toast.textContent = `Copied icn-${icon.name}`;
+              toast.classList.add('show');
+              toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+            } catch (e) {
+              // Fallback: copy name
+              navigator.clipboard.writeText(`icn-${icon.name}`);
+              clearTimeout(toastTimer);
+              toast.textContent = `Copied name: icn-${icon.name}`;
+              toast.classList.add('show');
+              toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+            }
+          }, 'image/png');
         } catch (err) {
-          // Fallback: copy name to clipboard
           navigator.clipboard.writeText(`icn-${icon.name}`);
           clearTimeout(toastTimer);
           toast.textContent = `Copied icn-${icon.name}`;
@@ -400,15 +423,6 @@ if (menuBtn) {
 
       grid.appendChild(card);
     });
-  }
-
-  async function convertToPng(imgEl) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 24;
-    canvas.height = 24;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(imgEl, 0, 0, 24, 24);
-    return new Promise(res => canvas.toBlob(res, 'image/png'));
   }
 
   searchInput.addEventListener('input', () => renderGrid(searchInput.value));

@@ -553,14 +553,19 @@ body {
 .icon-grid[data-variant="white"] .icon-card.copied { outline-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08); }
 
 .icon-card-img-wrap {
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.icon-card img { width: 24px; height: 24px; display: block; }
+.icon-card img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  object-fit: contain;
+}
 
 .icon-card-name {
   font-family: 'Courier New', monospace;
