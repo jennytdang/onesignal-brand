@@ -386,7 +386,7 @@ if (menuBtn) {
     filtered.forEach(icon => {
       const card = document.createElement('div');
       card.className = 'icon-card';
-      card.title = `Click to copy icn-${icon.name}`;
+      card.title = `icn-${icon.name}`;
 
       const imgWrap = document.createElement('div');
       imgWrap.className = 'icon-card-img-wrap';
@@ -410,6 +410,7 @@ if (menuBtn) {
       const label = document.createElement('span');
       label.className = 'icon-card-name';
       label.textContent = `icn-${icon.name}`;
+      label.style.display = 'none'; // hidden but kept for tooltip/accessibility
 
       imgWrap.appendChild(document.createTextNode('')); // placeholder
       card.appendChild(imgWrap);
