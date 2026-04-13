@@ -354,67 +354,76 @@ body {
 
 /* ── Color Scales ────────────────────────────── */
 .scale-palettes {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
 }
 
 .scale-palette {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
 }
 
 .scale-label {
   font-family: var(--font-heading);
   font-size: 12px;
   font-weight: 700;
-  color: var(--gray-500);
-  width: 52px;
-  flex-shrink: 0;
-  text-align: right;
+  color: #fff;
+  background: var(--scale-base);
+  padding: 8px 10px;
 }
 
 .scale-strip {
   display: flex;
-  flex: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  height: 48px;
+  flex-direction: column;
 }
 
 .scale-swatch {
-  flex: 1;
   background: var(--sw);
   cursor: pointer;
-  position: relative;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
-  transition: flex 0.15s ease;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  height: 34px;
+  transition: height 0.15s ease, filter 0.15s;
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .scale-swatch:hover {
-  flex: 1.6;
+  filter: brightness(1.1);
+  height: 42px;
 }
 
-.scale-swatch span {
+.scale-swatch .shade-num {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.45);
+}
+
+.scale-swatch .shade-hex {
   font-family: 'Courier New', monospace;
   font-size: 9px;
-  color: rgba(0,0,0,0.45);
+  color: rgba(0,0,0,0.35);
   opacity: 0;
   transition: opacity 0.15s;
-  pointer-events: none;
-  line-height: 1;
 }
 
-.scale-swatch span.light {
-  color: rgba(255,255,255,0.6);
-}
-
-.scale-swatch:hover span {
+.scale-swatch:hover .shade-hex {
   opacity: 1;
+}
+
+.scale-swatch.light .shade-num {
+  color: rgba(255,255,255,0.7);
+}
+
+.scale-swatch.light .shade-hex {
+  color: rgba(255,255,255,0.6);
 }
 
 /* ── Do / Don't ─────────────────────────────── */
