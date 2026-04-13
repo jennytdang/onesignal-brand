@@ -375,6 +375,8 @@ body {
   color: #fff;
   background: var(--scale-base);
   padding: 8px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .scale-strip {
@@ -390,13 +392,13 @@ body {
   justify-content: space-between;
   padding: 6px 10px;
   height: 34px;
-  transition: height 0.15s ease, filter 0.15s;
+  flex-shrink: 0;
+  transition: filter 0.15s;
   border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .scale-swatch:hover {
-  filter: brightness(1.1);
-  height: 42px;
+  filter: brightness(1.08);
 }
 
 .scale-swatch .shade-num {
