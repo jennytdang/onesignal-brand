@@ -1103,154 +1103,61 @@ body {
   max-width: 56px;
 }
 
-/* Media kit */
-.media-kit-card {
-  background: #fff;
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 32px;
-}
-
-.media-kit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.media-kit-title {
-  font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--gray-900);
-  margin-bottom: 3px;
-}
-
-.media-kit-subtitle {
-  font-size: 12px;
-  color: var(--gray-500);
-}
-
-.media-kit-dl-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--purple-600);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: var(--font-heading);
-  text-decoration: none;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.media-kit-dl-btn:hover { background: var(--purple-700, #2F31B1); }
-
-.media-kit-format-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.media-kit-count {
-  font-size: 11px;
-  color: var(--gray-400);
-}
-
-.media-kit-fmt-toggle {
-  display: flex;
-  gap: 3px;
-  background: var(--gray-100);
-  border-radius: 6px;
-  padding: 3px;
-}
-
-.media-kit-fmt-btn {
-  font-size: 11px;
-  font-weight: 600;
-  font-family: var(--font-heading);
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  background: none;
-  color: var(--gray-500);
-  transition: all 0.15s;
-}
-.media-kit-fmt-btn.active {
-  background: #fff;
-  color: var(--purple-600);
-  border: 0.5px solid var(--gray-200);
-}
-
-.media-kit-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 11px 20px;
-  border-bottom: 1px solid var(--gray-200);
-}
-.media-kit-row:last-child { border-bottom: none; }
-
-.media-kit-thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background: var(--gray-100);
+/* Media kit hero card */
+.media-kit-hero {
+  background: linear-gradient(to right, #7274DA, #4DA6EF);
+  border-radius: 16px;
+  padding: 64px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  text-align: center;
+  margin-bottom: 32px;
 }
-.media-kit-thumb img {
-  max-width: 36px;
-  max-height: 28px;
-  object-fit: contain;
+
+.media-kit-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 480px;
 }
-.media-kit-thumb--dark { background: #051B2C; }
 
-.media-kit-info { flex: 1; min-width: 0; }
-
-.media-kit-filename {
-  font-size: 13px;
-  font-weight: 500;
+.media-kit-hero-title {
   font-family: var(--font-heading);
-  color: var(--gray-900);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
 }
 
-.media-kit-desc {
-  font-size: 11px;
-  color: var(--gray-400);
-  margin-top: 2px;
+.media-kit-hero-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
 }
 
-.media-kit-row-btn {
-  font-size: 11px;
+.media-kit-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
   font-weight: 700;
   font-family: var(--font-heading);
-  color: var(--purple-600);
-  background: none;
-  border: 1px solid var(--purple-600);
-  border-radius: 6px;
-  padding: 5px 12px;
-  cursor: pointer;
   text-decoration: none;
-  flex-shrink: 0;
-  transition: background 0.15s;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
-.media-kit-row-btn:hover { background: #EEEDFE; }
+.media-kit-hero-btn:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.8);
+}
 
 
 
