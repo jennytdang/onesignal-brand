@@ -143,6 +143,47 @@ document.querySelectorAll('.nav-link').forEach(link => {
 const toast = document.getElementById('toast');
 let toastTimer;
 
+// ── Logo lockup light/dark toggle ─────────────────────
+const logoAssets = {
+  h: { light: { img: 'assets/OneSignal-Logo.svg',       png: 'assets/OneSignal-Logo.png',       svg: 'assets/OneSignal-Logo.svg'       },
+       dark:  { img: 'assets/OneSignal-Logo-White.svg',  png: 'assets/OneSignal-Logo-White.png',  svg: 'assets/OneSignal-Logo-White.svg'  } },
+  s: { light: { img: 'assets/OneSignal-Logo-Stack.svg',       png: 'assets/OneSignal-Logo-Stack.png',       svg: 'assets/OneSignal-Logo-Stack.svg'       },
+       dark:  { img: 'assets/OneSignal-Logo-Stack-White.svg',  png: 'assets/OneSignal-Logo-Stack-White.png',  svg: 'assets/OneSignal-Logo-Stack-White.svg'  } },
+  m: { light: { img: 'assets/OneSignal-Logomark.svg',       png: 'assets/OneSignal-Logomark.png',       svg: 'assets/OneSignal-Logomark.svg'       },
+       dark:  { img: 'assets/OneSignal-Logomark-White.svg',  png: 'assets/OneSignal-Logomark-White.png',  svg: 'assets/OneSignal-Logomark-White.svg'  } },
+};
+
+function setLogoMode(card, mode, btn) {
+  const assets = logoAssets[card][mode];
+  const prev = document.getElementById('prev-' + card);
+  const img  = document.getElementById('img-' + card);
+  const dlPng = document.getElementById('dl-png-' + card);
+  const dlSvg = document.getElementById('dl-svg-' + card);
+
+  prev.style.background = mode === 'dark' ? '#051B2C' : '#ffffff';
+  img.src = assets.img;
+  dlPng.href = assets.png;
+  dlSvg.href = assets.svg;
+
+  btn.closest('.logo-bg-dots').querySelectorAll('.logo-dot').forEach(d => d.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Media kit format toggle ────────────────────────────
+function setKitFmt(fmt, btn) {
+  document.querySelectorAll('.media-kit-fmt-btn').forEach(b => b.classList.toggle('active', b === btn));
+
+  document.querySelectorAll('.media-kit-filename').forEach(el => {
+    el.textContent = fmt === 'svg' ? el.dataset.svg : el.dataset.png;
+  });
+
+  document.querySelectorAll('.media-kit-row-btn').forEach(el => {
+    const target = fmt === 'svg' ? el.dataset.svg : el.dataset.png;
+    el.href = target;
+    el.download = target.split('/').pop();
+  });
+}
+
 document.querySelectorAll('.color-card[data-copy], .scale-swatch[data-copy]').forEach(el => {
   el.addEventListener('click', () => {
     navigator.clipboard.writeText(el.dataset.copy).then(() => {
