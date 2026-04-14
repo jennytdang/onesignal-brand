@@ -384,7 +384,7 @@ body {
   font-weight: 700;
   color: #fff;
   background: var(--scale-base);
-  padding: 8px 10px;
+  padding: 12px 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
