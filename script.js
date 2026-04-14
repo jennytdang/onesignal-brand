@@ -339,7 +339,6 @@ if (menuBtn) {
     { name: 'food', url: 'assets/icn-food.svg', category: 'Lifestyle' },
     { name: 'drink', url: 'assets/icn-drink.svg', category: 'Lifestyle' },
     { name: 'wine', url: 'assets/icn-wine.svg', category: 'Lifestyle' },
-    { name: 'cake', url: 'assets/icn-cake.svg', category: 'Lifestyle' },
     { name: 'fitness', url: 'assets/icn-fitness.svg', category: 'Lifestyle' },
     { name: 'sports', url: 'assets/icn-sports.svg', category: 'Lifestyle' },
     { name: 'sports-2', url: 'assets/icn-sports-2.svg', category: 'Lifestyle' },
