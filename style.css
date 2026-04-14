@@ -1044,7 +1044,7 @@ body {
 .logo-pill-btn {
   font-size: 11px;
   font-weight: 600;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   padding: 4px 12px;
   border: none;
   border-radius: 999px;
@@ -1056,9 +1056,8 @@ body {
 }
 
 .logo-pill-btn.active {
-  background: #fff;
-  color: var(--purple-600);
-  border: 1px solid var(--purple-600);
+  background: var(--purple-600);
+  color: #fff;
 }
 
 .logo-dl-btns {
@@ -1071,7 +1070,7 @@ body {
 .logo-btn-png {
   font-size: 11px;
   font-weight: 700;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   border-radius: 6px;
   padding: 5px 10px;
   cursor: pointer;
