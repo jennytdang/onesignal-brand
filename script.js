@@ -1,6 +1,5 @@
-// ── Hero Pixel Cursor Trail ───────────────────
-// Spawns glowing pixel squares that follow the cursor and fade out.
-// Grid lines stay as static background, trail is a separate canvas on top.
+// ── Hero Pixel Scatter Burst ───────────────────
+// Pixels bloom randomly around cursor in brand colors, no grid lines.
 
 (function () {
   const hero = document.getElementById('hero');
@@ -9,16 +8,16 @@
 
   gridEl.innerHTML = '';
 
-  // Trail canvas only — no grid lines
   const trailCanvas = document.createElement('canvas');
   trailCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;';
   gridEl.appendChild(trailCanvas);
   const tctx = trailCanvas.getContext('2d');
 
   const CELL        = 40;
-  const TRAIL_LIFE  = 55;
-  const SPAWN_DIST  = 12;
-  const MAX_PIXELS  = 120;
+  const LIFE        = 65;
+  const SPAWN_EVERY = 4;
+  const RADIUS      = 126;
+  const MAX         = 80;
   const COLORS      = [
     [255, 255, 255],
     [255, 255, 255],
@@ -30,8 +29,9 @@
 
   let W = 0, H = 0, dpr = 1;
   let particles = [];
-  let lastX = -1, lastY = -1, distAccum = 0;
+  let mouse = null;
   let rafId = null;
+  let frame = 0;
 
   function resize() {
     dpr = window.devicePixelRatio || 1;
@@ -43,59 +43,47 @@
     trailCanvas.style.height = H + 'px';
   }
 
-  function spawnPixel(x, y) {
-    // Snap to nearest grid cell
-    const col = Math.round(x / CELL) * CELL;
-    const row = Math.round(y / CELL) * CELL;
-    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
-
-    // Don't stack too many on same cell
-    const existing = particles.filter(p => p.col === col && p.row === row);
-    if (existing.length > 1) return;
-
+  function spawnAround(mx, my) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = Math.sqrt(Math.random()) * RADIUS;
+    const col   = Math.round((mx + Math.cos(angle) * dist) / CELL) * CELL;
+    const row   = Math.round((my + Math.sin(angle) * dist) / CELL) * CELL;
+    if (col < 0 || row < 0 || col > W || row > H) return;
+    if (particles.some(p => p.col === col && p.row === row && p.life > LIFE * 0.25)) return;
     particles.push({
       col, row,
-      color,
-      life: TRAIL_LIFE,
-      maxLife: TRAIL_LIFE,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      life: LIFE,
+      maxLife: LIFE,
     });
-
-    if (particles.length > MAX_PIXELS) particles.shift();
+    if (particles.length > MAX) particles.splice(0, particles.length - MAX);
   }
 
   function render() {
     rafId = requestAnimationFrame(render);
+    frame++;
 
     tctx.setTransform(1, 0, 0, 1, 0, 0);
     tctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
 
-    let anyAlive = false;
+    if (mouse && frame % SPAWN_EVERY === 0) spawnAround(mouse.x, mouse.y);
 
     particles = particles.filter(p => p.life > 0);
 
     particles.forEach(p => {
       p.life--;
-      const progress = p.life / p.maxLife;  // 1 = fresh, 0 = dead
-
-      // Ease out — bright flash then slow fade
-      const alpha = Math.pow(progress, 0.6) * 0.75;
-
+      const t = 1 - (p.life / p.maxLife);
+      // Smooth sine bell: ease in then slow ease out
+      const alpha = t < 0.15
+        ? Math.sin((t / 0.15) * Math.PI * 0.5) * 0.65
+        : Math.sin(((1 - t) / 0.85) * Math.PI * 0.5) * 0.65;
       if (alpha < 0.005) return;
-      anyAlive = true;
-
       const [r, g, b] = p.color;
-
-      // Physical pixel coords
-      const px = Math.round(p.col * dpr);
-      const py = Math.round(p.row * dpr);
-      const ps = Math.round(CELL * dpr);
-
-      // Crisp pixel square only — no glow
       tctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
-      tctx.fillRect(px, py, ps, ps);
+      tctx.fillRect(Math.round(p.col * dpr), Math.round(p.row * dpr), Math.round(CELL * dpr), Math.round(CELL * dpr));
     });
 
-    if (!anyAlive) {
+    if (!mouse && particles.every(p => p.life <= 0)) {
       cancelAnimationFrame(rafId);
       rafId = null;
     }
@@ -107,36 +95,16 @@
 
   hero.addEventListener('mousemove', e => {
     const rect = hero.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if (lastX >= 0) {
-      const dx = x - lastX;
-      const dy = y - lastY;
-      distAccum += Math.sqrt(dx * dx + dy * dy);
-
-      while (distAccum >= SPAWN_DIST) {
-        distAccum -= SPAWN_DIST;
-        spawnPixel(x, y);
-      }
-    } else {
-      spawnPixel(x, y);
-    }
-
-    lastX = x;
-    lastY = y;
+    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     startRender();
   });
 
-  hero.addEventListener('mouseleave', () => {
-    lastX = -1;
-    lastY = -1;
-  });
+  hero.addEventListener('mouseleave', () => { mouse = null; });
 
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { resize(); }, 150);
+    resizeTimer = setTimeout(resize, 150);
   });
 
   resize();
