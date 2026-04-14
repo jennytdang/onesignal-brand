@@ -230,6 +230,8 @@ if (menuBtn) {
     { name: 'apps', url: 'assets/icn-apps.svg', category: 'Devices' },
     { name: 'sdk', url: 'assets/icn-sdk.svg', category: 'Devices' },
     { name: 'webhook', url: 'assets/icn-webhook.svg', category: 'Devices' },
+    { name: 'phone', url: 'assets/icn-phone.svg', category: 'Devices' },
+    { name: 'cloud', url: 'assets/icn-cloud.svg', category: 'Devices' },
     // Navigation
     { name: 'arrow', url: 'assets/icn-arrow.svg', category: 'Navigation' },
     { name: 'arrow-2', url: 'assets/icn-arrow-2.svg', category: 'Navigation' },
@@ -243,6 +245,7 @@ if (menuBtn) {
     { name: 'arrow-down', url: 'assets/icn-arrow-down.svg', category: 'Navigation' },
     { name: 'arrow-right-2',url: 'assets/icn-arrow-right-2.svg', category: 'Navigation' },
     { name: 'arrow-left-2', url: 'assets/icn-arrow-left-2.svg', category: 'Navigation' },
+    { name: 'up', url: 'assets/icn-up.svg', category: 'Navigation' },
     { name: 'close', url: 'assets/icn-close.svg', category: 'Navigation' },
     { name: 'plus', url: 'assets/icn-plus.svg', category: 'Navigation' },
     { name: 'plus-2', url: 'assets/icn-plus-2.svg', category: 'Navigation' },
@@ -252,6 +255,11 @@ if (menuBtn) {
     { name: 'search', url: 'assets/icn-search.svg', category: 'Navigation' },
     { name: 'filter', url: 'assets/icn-filter.svg', category: 'Navigation' },
     { name: 'home', url: 'assets/icn-home.svg', category: 'Navigation' },
+    { name: 'enter', url: 'assets/icn-enter.svg', category: 'Navigation' },
+    { name: 'exit', url: 'assets/icn-exit.svg', category: 'Navigation' },
+    { name: 'return', url: 'assets/icn-return.svg', category: 'Navigation' },
+    { name: 'link', url: 'assets/icn-link.svg', category: 'Navigation' },
+    { name: 'link-2', url: 'assets/icn-link-2.svg', category: 'Navigation' },
     // Users & People
     { name: 'people', url: 'assets/icn-people.svg', category: 'Users' },
     { name: 'people-2', url: 'assets/icn-people-2.svg', category: 'Users' },
@@ -263,6 +271,11 @@ if (menuBtn) {
     { name: 'help-2', url: 'assets/icn-help-2.svg', category: 'Users' },
     { name: 'id', url: 'assets/icn-id.svg', category: 'Users' },
     { name: 'journey', url: 'assets/icn-journey.svg', category: 'Users' },
+    { name: 'hand-wave', url: 'assets/icn-hand-wave.svg', category: 'Users' },
+    { name: 'handshake', url: 'assets/icn-handshake.svg', category: 'Users' },
+    { name: 'handshake-2', url: 'assets/icn-handshake-2.svg', category: 'Users' },
+    { name: 'thumbs-up', url: 'assets/icn-thumbs-up.svg', category: 'Users' },
+    { name: 'thumbs-down', url: 'assets/icn-thumbs-down.svg', category: 'Users' },
     // Tools & Settings
     { name: 'gear', url: 'assets/icn-gear.svg', category: 'Tools' },
     { name: 'tool-1', url: 'assets/icn-tool-1.svg', category: 'Tools' },
@@ -279,11 +292,60 @@ if (menuBtn) {
     { name: 'code-2', url: 'assets/icn-code-2.svg', category: 'Tools' },
     { name: 'reorder', url: 'assets/icn-reorder.svg', category: 'Tools' },
     { name: 'cursor', url: 'assets/icn-cursor.svg', category: 'Tools' },
+    { name: 'key', url: 'assets/icn-key.svg', category: 'Tools' },
+    { name: 'focus', url: 'assets/icn-focus.svg', category: 'Tools' },
+    { name: 'preview', url: 'assets/icn-preview.svg', category: 'Tools' },
+    { name: 'compare', url: 'assets/icn-compare.svg', category: 'Tools' },
+    { name: 'connect', url: 'assets/icn-connect.svg', category: 'Tools' },
+    { name: 'connection', url: 'assets/icn-connection.svg', category: 'Tools' },
+    { name: 'click', url: 'assets/icn-click.svg', category: 'Tools' },
+    { name: 'loading', url: 'assets/icn-loading.svg', category: 'Tools' },
+    { name: 'record', url: 'assets/icn-record.svg', category: 'Tools' },
+    { name: 'ruler', url: 'assets/icn-ruler.svg', category: 'Tools' },
+    { name: 'blueprint', url: 'assets/icn-blueprint.svg', category: 'Tools' },
+    { name: 'puzzle', url: 'assets/icn-puzzle.svg', category: 'Tools' },
+    { name: 'question', url: 'assets/icn-question.svg', category: 'Tools' },
+    { name: 'list', url: 'assets/icn-list.svg', category: 'Tools' },
+    { name: 'list-2', url: 'assets/icn-list-2.svg', category: 'Tools' },
+    { name: 'tags', url: 'assets/icn-tags.svg', category: 'Tools' },
+    { name: 'documentation', url: 'assets/icn-documentation.svg', category: 'Tools' },
+    { name: 'pencil', url: 'assets/icn-pencil.svg', category: 'Tools' },
+    { name: 'test-tube', url: 'assets/icn-test-tube.svg', category: 'Tools' },
     // Social
     { name: 'facebook', url: 'assets/icn-facebook.svg', category: 'Social' },
     { name: 'instagram', url: 'assets/icn-instagram.svg', category: 'Social' },
     { name: 'linkedin', url: 'assets/icn-linkedin.svg', category: 'Social' },
     { name: 'twitter', url: 'assets/icn-twitter.svg', category: 'Social' },
+    // Commerce & Finance
+    { name: 'money', url: 'assets/icn-money.svg', category: 'Commerce' },
+    { name: 'money-2', url: 'assets/icn-money-2.svg', category: 'Commerce' },
+    { name: 'money-3', url: 'assets/icn-money-3.svg', category: 'Commerce' },
+    { name: 'money-4', url: 'assets/icn-money-4.svg', category: 'Commerce' },
+    { name: 'cart', url: 'assets/icn-cart.svg', category: 'Commerce' },
+    { name: 'crypto', url: 'assets/icn-crypto.svg', category: 'Commerce' },
+    { name: 'discount', url: 'assets/icn-discount.svg', category: 'Commerce' },
+    // Travel & Transport
+    { name: 'plane', url: 'assets/icn-plane.svg', category: 'Travel' },
+    { name: 'plane-2', url: 'assets/icn-plane-2.svg', category: 'Travel' },
+    { name: 'plane-3', url: 'assets/icn-plane-3.svg', category: 'Travel' },
+    { name: 'car', url: 'assets/icn-car.svg', category: 'Travel' },
+    { name: 'car-2', url: 'assets/icn-car-2.svg', category: 'Travel' },
+    { name: 'ship', url: 'assets/icn-ship.svg', category: 'Travel' },
+    { name: 'road', url: 'assets/icn-road.svg', category: 'Travel' },
+    { name: 'travel', url: 'assets/icn-travel.svg', category: 'Travel' },
+    { name: 'vacation', url: 'assets/icn-vacation.svg', category: 'Travel' },
+    { name: 'traffic', url: 'assets/icn-traffic.svg', category: 'Travel' },
+    // Lifestyle
+    { name: 'food', url: 'assets/icn-food.svg', category: 'Lifestyle' },
+    { name: 'drink', url: 'assets/icn-drink.svg', category: 'Lifestyle' },
+    { name: 'wine', url: 'assets/icn-wine.svg', category: 'Lifestyle' },
+    { name: 'cake', url: 'assets/icn-cake.svg', category: 'Lifestyle' },
+    { name: 'fitness', url: 'assets/icn-fitness.svg', category: 'Lifestyle' },
+    { name: 'sports', url: 'assets/icn-sports.svg', category: 'Lifestyle' },
+    { name: 'sports-2', url: 'assets/icn-sports-2.svg', category: 'Lifestyle' },
+    { name: 'sports-3', url: 'assets/icn-sports-3.svg', category: 'Lifestyle' },
+    { name: 'medical', url: 'assets/icn-medical.svg', category: 'Lifestyle' },
+    { name: 'clothing', url: 'assets/icn-clothing.svg', category: 'Lifestyle' },
     // Misc
     { name: 'star', url: 'assets/icn-star.svg', category: 'Misc' },
     { name: 'star-2', url: 'assets/icn-star-2.svg', category: 'Misc' },
@@ -301,7 +363,23 @@ if (menuBtn) {
     { name: 'flag-2', url: 'assets/icn-flag-2.svg', category: 'Misc' },
     { name: 'calendar', url: 'assets/icn-calendar.svg', category: 'Misc' },
     { name: 'time', url: 'assets/icn-time.svg', category: 'Misc' },
+    { name: 'time-2', url: 'assets/icn-time-2.svg', category: 'Misc' },
+    { name: 'time-3', url: 'assets/icn-time-3.svg', category: 'Misc' },
+    { name: 'time-4', url: 'assets/icn-time-4.svg', category: 'Misc' },
     { name: 'location', url: 'assets/icn-location.svg', category: 'Misc' },
+    { name: 'building', url: 'assets/icn-building.svg', category: 'Misc' },
+    { name: 'book', url: 'assets/icn-book.svg', category: 'Misc' },
+    { name: 'book-2', url: 'assets/icn-book-2.svg', category: 'Misc' },
+    { name: 'book-3', url: 'assets/icn-book-3.svg', category: 'Misc' },
+    { name: 'lightbulb', url: 'assets/icn-lightbulb.svg', category: 'Misc' },
+    { name: 'languages', url: 'assets/icn-languages.svg', category: 'Misc' },
+    { name: 'news-media', url: 'assets/icn-news-media.svg', category: 'Misc' },
+    { name: 'game', url: 'assets/icn-game.svg', category: 'Misc' },
+    { name: 'party', url: 'assets/icn-party.svg', category: 'Misc' },
+    { name: 'party-2', url: 'assets/icn-party-2.svg', category: 'Misc' },
+    { name: 'party-3', url: 'assets/icn-party-3.svg', category: 'Misc' },
+    { name: 'video', url: 'assets/icn-video.svg', category: 'Misc' },
+    { name: 'video-2', url: 'assets/icn-video-2.svg', category: 'Misc' },
   ];
 
   const grid = document.getElementById('iconGrid');
@@ -349,7 +427,8 @@ if (menuBtn) {
   function renderGrid(filter = '') {
     const filtered = icons.filter(ic => ic.name.includes(filter.toLowerCase()));
     grid.innerHTML = '';
-    emptyMsg.style.display = filtered.length === 0 ? 'block' : 'none';
+    emptyMsg.style.display = filtered.length === 0 ? 'flex' : 'none';
+    if (filtered.length === 0) { grid.appendChild(emptyMsg); return; }
 
     filtered.forEach(icon => {
       const card = document.createElement('div');

@@ -384,7 +384,7 @@ body {
   font-weight: 700;
   color: #fff;
   background: var(--scale-base);
-  padding: 12px 10px;
+  padding: 8px 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -593,10 +593,26 @@ body {
 .icon-grid[data-variant="white"] .icon-card-name { color: rgba(255,255,255,0.4); }
 
 .icon-grid-empty {
-  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 48px 24px;
+  gap: 12px;
+}
+
+.icon-grid-empty-img {
+  width: 72px;
+  height: auto;
+  opacity: 0.7;
+}
+
+.icon-grid-empty-text {
+  font-size: 13px;
   color: var(--gray-400);
-  text-align: center;
-  padding: 32px;
+  font-family: var(--font-body);
+  margin: 0;
 }
 
 .icon-showcase-panels {
@@ -951,7 +967,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--gray-400);
 }
 
 .scale-sample {
@@ -986,7 +1002,7 @@ body {
 }
 
 .logo-lockup-preview {
-  padding: 28px 40px;
+  padding: 48px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
