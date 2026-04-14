@@ -526,8 +526,8 @@ body {
 .icon-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding: 16px;
+  gap: 8px;
+  padding: 20px;
   background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
@@ -543,8 +543,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s, outline 0.1s;
