@@ -1032,28 +1032,34 @@ body {
   color: var(--gray-500);
 }
 
-.logo-bg-dots {
+.logo-bg-pill {
   display: flex;
-  gap: 3px;
   background: var(--gray-100);
   border-radius: 999px;
   padding: 3px;
+  border: 1px solid var(--gray-200);
   flex-shrink: 0;
 }
 
-.logo-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+.logo-pill-btn {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  padding: 4px 12px;
   border: none;
+  border-radius: 999px;
   cursor: pointer;
-  transition: transform 0.1s;
+  background: none;
+  color: var(--gray-500);
+  transition: all 0.15s;
+  white-space: nowrap;
 }
-.logo-dot:not([disabled]):hover { transform: scale(1.15); }
-.logo-dot--light { background: #fff; border: 0.5px solid #d1d5db; }
-.logo-dot--dark  { background: #051B2C; }
-.logo-dot--gray  { background: #F3F4F5; border: 0.5px solid #d1d5db; }
-.logo-dot.active { outline: 2px solid var(--purple-600); outline-offset: 2px; }
+
+.logo-pill-btn.active {
+  background: #fff;
+  color: var(--purple-600);
+  border: 1px solid var(--purple-600);
+}
 
 .logo-dl-btns {
   display: flex;
@@ -1095,7 +1101,7 @@ body {
 }
 
 .logo-stacked {
-  max-height: 80px;
+  max-height: 110px;
 }
 
 .logo-mark {

@@ -165,7 +165,7 @@ function setLogoMode(card, mode, btn) {
   dlPng.href = assets.png;
   dlSvg.href = assets.svg;
 
-  btn.closest('.logo-bg-dots').querySelectorAll('.logo-dot').forEach(d => d.classList.remove('active'));
+  btn.closest('.logo-bg-pill').querySelectorAll('.logo-pill-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
