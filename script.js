@@ -403,8 +403,8 @@ if (menuBtn) {
     const [minX, minY, w, h] = vb.split(' ').map(Number);
     const pad = 2;
     svgEl.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`);
-    svgEl.setAttribute('width', '32');
-    svgEl.setAttribute('height', '32');
+    svgEl.setAttribute('width', '20');
+    svgEl.setAttribute('height', '20');
     svgEl.removeAttribute('xmlns');
 
     // Swap fill/stroke color for white variant — skip fills inside <defs>

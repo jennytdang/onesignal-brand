@@ -526,8 +526,8 @@ body {
 .icon-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 20px;
+  gap: 4px;
+  padding: 16px;
   background: #fff;
   border: 1px solid var(--gray-200);
   border-radius: 12px;
@@ -543,9 +543,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s, outline 0.1s;
   position: relative;
@@ -563,10 +563,10 @@ body {
 .icon-grid[data-variant="white"] .icon-card.copied { outline-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08); }
 
 .icon-card-img-wrap {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -576,8 +576,8 @@ body {
 
 .icon-card-img-wrap svg,
 .icon-card img {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   display: block;
   object-fit: contain;
 }
