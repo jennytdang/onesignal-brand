@@ -157,13 +157,24 @@ function setLogoMode(card, mode, btn) {
   const assets = logoAssets[card][mode];
   const prev = document.getElementById('prev-' + card);
   const img  = document.getElementById('img-' + card);
-  const dlPng = document.getElementById('dl-png-' + card);
-  const dlSvg = document.getElementById('dl-svg-' + card);
 
   prev.style.background = mode === 'dark' ? '#051B2C' : '#ffffff';
   img.src = assets.img;
-  dlPng.href = assets.png;
-  dlSvg.href = assets.svg;
+
+  // Update modal trigger data on the PNG/SVG buttons
+  const lockup = prev.closest('.logo-lockup-card');
+  if (lockup) {
+    const pngBtn = lockup.querySelector('.logo-btn-png');
+    const svgBtn = lockup.querySelector('.logo-btn-svg');
+    if (pngBtn) {
+      const pngName = assets.png.split('/').pop();
+      pngBtn.setAttribute('onclick', `openDlModal('${pngName}','${assets.png}')`);
+    }
+    if (svgBtn) {
+      const svgName = assets.svg.split('/').pop();
+      svgBtn.setAttribute('onclick', `openDlModal('${svgName}','${assets.svg}')`);
+    }
+  }
 
   btn.closest('.logo-bg-pill').querySelectorAll('.logo-pill-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
