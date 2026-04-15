@@ -1645,10 +1645,10 @@ body {
   background: #fff;
   border-radius: 12px;
   padding: 24px;
-  width: 280px;
+  width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   box-shadow: 0 8px 32px rgba(5, 27, 44, 0.16);
 }
 
@@ -1674,14 +1674,15 @@ body {
 }
 
 .dl-modal-cancel {
-  font-size: 12px;
+  flex: 1;
+  font-size: 16px;
   font-weight: 700;
   font-family: var(--font-heading);
   color: var(--black);
   background: #fff;
   border: 1px solid var(--black);
   border-radius: 4px;
-  padding: 7px 16px;
+  height: 48px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
@@ -1692,14 +1693,15 @@ body {
 }
 
 .dl-modal-confirm {
-  font-size: 12px;
+  flex: 1;
+  font-size: 16px;
   font-weight: 700;
   font-family: var(--font-heading);
   color: #fff;
   background: #051B2C;
   border: none;
   border-radius: 4px;
-  padding: 7px 16px;
+  height: 48px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
