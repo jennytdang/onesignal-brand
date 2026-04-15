@@ -894,9 +894,9 @@ body {
   font-size: 16px;
   font-weight: 700;
   font-family: var(--font-heading);
-  color: #051B2C;
-  background: #fff;
-  border: 1px solid #051B2C;
+  color: #fff;
+  background: #051B2C;
+  border: none;
   border-radius: 4px;
   padding: 0 16px;
   height: 48px;
@@ -904,13 +904,11 @@ body {
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
 }
-.font-dl-btn:hover {
-  background: #4E50D1;
-  color: #fff;
-  border-color: #4E50D1;
-}
+.font-dl-btn:hover { background: #051B2C; }
 
 /* ── Type scale table ───────────────────────── */
 .type-card {
@@ -1162,8 +1160,8 @@ body {
   align-items: center;
   gap: 7px;
   margin-top: 8px;
-  background: #ffffff;
-  color: #051B2C;
+  background: #051B2C;
+  color: #fff;
   border: none;
   border-radius: 4px;
   padding: 0 24px;
@@ -1177,7 +1175,7 @@ body {
   overflow: hidden;
   isolation: isolate;
 }
-.media-kit-hero-btn:hover { background: #ffffff; }
+.media-kit-hero-btn:hover { background: #051B2C; }
 
 
 
@@ -1628,7 +1626,87 @@ body {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── Responsive ─────────────────────────────── */
+/* ── Download modal ─────────────────────────── */
+.dl-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 27, 44, 0.4);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.dl-modal-overlay.show {
+  display: flex;
+}
+
+.dl-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(5, 27, 44, 0.16);
+}
+
+.dl-modal-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--black);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.dl-modal-filename {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--purple-600);
+  font-weight: 600;
+}
+
+.dl-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dl-modal-cancel {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--black);
+  background: #fff;
+  border: 1px solid var(--black);
+  border-radius: 4px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dl-modal-cancel:hover {
+  background: #4E50D1;
+  color: #fff;
+  border-color: #4E50D1;
+}
+
+.dl-modal-confirm {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: #fff;
+  background: #051B2C;
+  border: none;
+  border-radius: 4px;
+  padding: 7px 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
   .sidebar.open { transform: translateX(0); }

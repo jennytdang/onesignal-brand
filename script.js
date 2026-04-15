@@ -644,3 +644,28 @@ if (menuBtn) {
 
   document.querySelectorAll('.px-wave').forEach(initPixelWave);
 })();
+
+// ── Download confirmation modal ─────────────────
+let _dlHref = '';
+
+function openDlModal(filename, href) {
+  _dlHref = href;
+  document.getElementById('dlModalFilename').textContent = filename;
+  document.getElementById('dlModalOverlay').classList.add('show');
+}
+
+function closeDlModal(e) {
+  if (e && e.target !== document.getElementById('dlModalOverlay')) return;
+  document.getElementById('dlModalOverlay').classList.remove('show');
+}
+
+function confirmDownload() {
+  if (!_dlHref) return;
+  const a = document.createElement('a');
+  a.href = _dlHref;
+  a.download = _dlHref.split('/').pop();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  document.getElementById('dlModalOverlay').classList.remove('show');
+}
