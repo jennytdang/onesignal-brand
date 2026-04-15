@@ -73,8 +73,6 @@
   }
 })();
 
-})();
-
 
 // ── Active nav on scroll ──────────────────────
 const sections = document.querySelectorAll('.section');
