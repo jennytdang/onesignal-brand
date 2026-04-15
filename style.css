@@ -204,6 +204,7 @@ body {
   padding: 8px 16px 6px 16px;
   border-radius: 100px;
   margin-bottom: 24px;
+  opacity: 0;
 }
 
 .hero-title {
@@ -214,6 +215,7 @@ body {
   color: #fff;
   margin-bottom: 20px;
   letter-spacing: -0.02em;
+  opacity: 0;
 }
 
 .hero-sub {
@@ -221,6 +223,7 @@ body {
   line-height: 1.65;
   color: rgba(255,255,255,0.82);
   max-width: 560px;
+  opacity: 0;
 }
 
 /* ── Sections ───────────────────────────────── */

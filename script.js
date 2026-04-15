@@ -1,4 +1,4 @@
-// ── Hero pixel wave on load ─────────────────────
+// ── Hero animations ─────────────────────────────
 (function () {
   const POS = [
     [15,0],[14,1],[15,2],[13,2],[14,5],[8,9],[7,7],[9,5],[8,0],
@@ -10,9 +10,22 @@
   ];
 
   const SVG_H = 924, CELL = 84, COLS = 16, SVG_W = 1344;
-  const MAX_DELAY = 500, NOISE = 0.5;
+  const TEXT_DUR = 600, STAGGER = 80, PX_DELAY = 450;
+  const MAX_DELAY = 250, NOISE = 0.65;
 
-  function init() {
+  function animateEl(el, delay) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(14px)';
+    el.style.filter = 'blur(4px)';
+    setTimeout(() => {
+      el.style.transition = `opacity ${TEXT_DUR}ms cubic-bezier(0.22,1,0.36,1), transform ${TEXT_DUR}ms cubic-bezier(0.22,1,0.36,1), filter ${TEXT_DUR}ms cubic-bezier(0.22,1,0.36,1)`;
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+      el.style.filter = 'blur(0px)';
+    }, delay);
+  }
+
+  function initPixels() {
     const wrap = document.getElementById('heroPixelWrap');
     const hero = document.getElementById('hero');
     if (!wrap || !hero) return;
@@ -21,22 +34,36 @@
     const scale = H / SVG_H;
     const cellPx = CELL * scale;
     wrap.style.width = (SVG_W * scale) + 'px';
+    wrap.style.mixBlendMode = 'overlay';
 
     POS.forEach(([col, row]) => {
       const div = document.createElement('div');
       div.className = 'hero-px-sq';
+      div.style.background = '#000';
       div.style.left   = (col * cellPx) + 'px';
       div.style.top    = (row * cellPx) + 'px';
-      div.style.width  = (cellPx - 2) + 'px';
-      div.style.height = (cellPx - 2) + 'px';
+      div.style.width  = cellPx + 'px';
+      div.style.height = cellPx + 'px';
       wrap.appendChild(div);
 
-      // right → left wave: col 15 fires first
       const progress = (COLS - 1 - col) / (COLS - 1);
       const noise = (Math.random() - 0.5) * MAX_DELAY * NOISE;
-      const delay = Math.max(0, progress * MAX_DELAY + noise);
-      setTimeout(() => { div.style.opacity = '1'; }, delay);
+      const delay = PX_DELAY + Math.max(0, progress * MAX_DELAY + noise);
+      const op = (0.01 + Math.random() * 0.17).toFixed(3);
+      setTimeout(() => { div.style.opacity = op; }, delay);
     });
+  }
+
+  function init() {
+    const pill  = document.querySelector('.hero-pill');
+    const title = document.querySelector('.hero-title');
+    const sub   = document.querySelector('.hero-sub');
+
+    if (pill)  animateEl(pill,  0);
+    if (title) animateEl(title, STAGGER);
+    if (sub)   animateEl(sub,   STAGGER * 2);
+
+    initPixels();
   }
 
   if (document.readyState === 'loading') {
@@ -44,6 +71,8 @@
   } else {
     init();
   }
+})();
+
 })();
 
 
