@@ -499,28 +499,90 @@ body {
 
 .icon-search:focus { border-color: var(--purple-600); }
 
-.icon-variant-toggle {
-  display: flex;
+.icon-variant-toggle { display: none; }
+.icon-variant-btn { display: none; }
+
+/* ── Icon grid outer wrapper ─────────────────── */
+.icon-grid-outer {
   border: 1px solid var(--gray-200);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  margin-bottom: 8px;
 }
 
-.icon-variant-btn {
-  padding: 8px 16px;
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 600;
-  border: none;
+.icon-grid-outer[data-variant="white"] {
+  background: #051B2C;
+  border-color: #051B2C;
+}
+
+/* ── Icon tabs ───────────────────────────────── */
+.icon-tab-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.icon-grid-outer[data-variant="white"] .icon-tab-row {
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.icon-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   cursor: pointer;
-  background: #fff;
+  margin-right: 16px;
+}
+
+.icon-tab:last-child { margin-right: 0; }
+
+.icon-tab-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
   color: var(--gray-500);
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 
-.icon-variant-btn.active {
-  background: var(--purple-600);
+.icon-tab:hover .icon-tab-label {
+  background: #F3F3FC;
+  color: var(--black);
+}
+
+.icon-tab.active .icon-tab-label {
+  color: var(--black);
+  background: none;
+}
+
+.icon-grid-outer[data-variant="white"] .icon-tab-label {
+  color: rgba(255,255,255,0.35);
+}
+
+.icon-grid-outer[data-variant="white"] .icon-tab:hover .icon-tab-label {
+  background: rgba(255,255,255,0.08);
   color: #fff;
+}
+
+.icon-grid-outer[data-variant="white"] .icon-tab.active .icon-tab-label {
+  color: #fff;
+  background: none;
+}
+
+.icon-tab-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: transparent;
+  margin-bottom: -1px;
+}
+
+.icon-tab.active .icon-tab-bar {
+  background: var(--purple-600);
 }
 
 .icon-grid {

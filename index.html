@@ -628,20 +628,26 @@
 
       <div class="icon-grid-controls">
         <input type="text" class="icon-search" id="iconSearch" placeholder="Search icons…" />
-        <div class="icon-variant-toggle">
-          <button class="icon-variant-btn active" id="btnPurple" data-variant="purple">Purple</button>
-          <button class="icon-variant-btn" id="btnWhite" data-variant="white">White</button>
-        </div>
       </div>
 
-      <div class="icon-grid" id="iconGrid" data-variant="purple">
+      <div class="icon-grid-outer" id="iconGridOuter">
+        <div class="icon-tab-row">
+          <div class="icon-tab active" id="btnPurple" onclick="setIconVariant('purple', this)">
+            <span class="icon-tab-label">Purple</span>
+            <div class="icon-tab-bar"></div>
+          </div>
+          <div class="icon-tab" id="btnWhite" onclick="setIconVariant('white', this)">
+            <span class="icon-tab-label">White</span>
+            <div class="icon-tab-bar"></div>
+          </div>
+        </div>
+
+        <div class="icon-grid" id="iconGrid" data-variant="purple">
         <div class="icon-grid-empty" id="iconGridEmpty" style="display:none;">
           <img src="assets/squirrel-empty-state.png" alt="" class="icon-grid-empty-img" />
           <p class="icon-grid-empty-text">No icons match your search.</p>
         </div>
       </div>
-
-    </section>
 
     </section>
 

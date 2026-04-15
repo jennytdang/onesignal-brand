@@ -562,21 +562,14 @@ if (menuBtn) {
 
   searchInput.addEventListener('input', () => renderGrid(searchInput.value));
 
-  btnPurple.addEventListener('click', () => {
-    grid.dataset.variant = 'purple';
-    currentVariant = 'purple';
-    btnPurple.classList.add('active');
-    btnWhite.classList.remove('active');
+  window.setIconVariant = function(variant, tabEl) {
+    currentVariant = variant;
+    grid.dataset.variant = variant;
+    document.getElementById('iconGridOuter').dataset.variant = variant;
+    document.querySelectorAll('.icon-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
     renderGrid(searchInput.value);
-  });
-
-  btnWhite.addEventListener('click', () => {
-    currentVariant = 'white';
-    grid.dataset.variant = 'white';
-    btnWhite.classList.add('active');
-    btnPurple.classList.remove('active');
-    renderGrid(searchInput.value);
-  });
+  };
 
   renderGrid();
 })();
