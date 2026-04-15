@@ -580,3 +580,67 @@ if (menuBtn) {
 
   renderGrid();
 })();
+
+// ── Pixel wave hover effect on primary buttons ──
+(function () {
+  const COLS = 12;
+  const ROWS = 4;
+  const MAX_DELAY = 250;
+  const WAVE_COLOR = '#4E50D1';
+
+  function getDelays(entryX, entryY) {
+    const cells = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cx = (c + 0.5) / COLS;
+        const cy = (r + 0.5) / ROWS;
+        const dist = Math.sqrt((cx - entryX) ** 2 + (cy - entryY) ** 2);
+        cells.push(dist);
+      }
+    }
+    const maxDist = Math.max(...cells);
+    return cells.map(dist => {
+      const base = (dist / maxDist) * MAX_DELAY;
+      const noise = (Math.random() - 0.5) * MAX_DELAY * 0.5;
+      return Math.max(0, Math.min(MAX_DELAY + 30, base + noise));
+    });
+  }
+
+  function initPixelWave(btn) {
+    const grid = btn.querySelector('.px-grid');
+    if (!grid) return;
+
+    const cellEls = [];
+    grid.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${ROWS}, 1fr)`;
+
+    for (let i = 0; i < COLS * ROWS; i++) {
+      const cell = document.createElement('div');
+      cell.style.cssText = `background:${WAVE_COLOR};opacity:0;transition-property:opacity;transition-duration:0s;transition-delay:0s;`;
+      grid.appendChild(cell);
+      cellEls.push(cell);
+    }
+
+    btn.addEventListener('mouseenter', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const ex = (e.clientX - rect.left) / rect.width;
+      const ey = (e.clientY - rect.top) / rect.height;
+      const delays = getDelays(ex, ey);
+      cellEls.forEach((el, i) => {
+        el.style.transitionDelay = `${delays[i].toFixed(1)}ms`;
+        el.style.transitionDuration = '0s';
+        el.style.opacity = '1';
+      });
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      cellEls.forEach(el => {
+        el.style.transitionDelay = '0s';
+        el.style.transitionDuration = '0s';
+        el.style.opacity = '0';
+      });
+    });
+  }
+
+  document.querySelectorAll('.px-wave').forEach(initPixelWave);
+})();
