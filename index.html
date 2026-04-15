@@ -655,7 +655,10 @@
     <div class="dl-modal">
       <p class="dl-modal-text">Download <span id="dlModalFilename" class="dl-modal-filename"></span>?</p>
       <div class="dl-modal-actions">
-        <button class="dl-modal-cancel" onclick="closeDlModal()">Cancel</button>
+        <button class="dl-modal-cancel px-wave" onclick="closeDlModal()">
+          <div class="px-grid"></div>
+          <span style="position:relative;z-index:2;padding-top:2px;">Cancel</span>
+        </button>
         <button class="dl-modal-confirm px-wave" id="dlModalConfirm" onclick="confirmDownload()">
           <div class="px-grid"></div>
           <span style="position:relative;z-index:2;">Download</span>
