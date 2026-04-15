@@ -17,7 +17,7 @@
   --gray-500: #6B7280;
   --gray-600: #4B5563;
   --gray-800: #1F2937;
-  --sidebar-w: 230px;
+  --sidebar-w: 270px;
   --font-heading: 'Epilogue', sans-serif;
   --font-body: 'Nunito Sans', sans-serif;
 }
@@ -37,7 +37,7 @@ body {
   position: fixed;
   top: 0; left: 0; bottom: 0;
   width: var(--sidebar-w);
-  background: #F3F4F5;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   padding: 28px 24px 24px;
@@ -53,7 +53,7 @@ body {
 }
 
 .sidebar-logo-img {
-  height: 28px;
+  height: 32px;
   width: auto;
   display: block;
   filter: none;
@@ -174,15 +174,19 @@ body {
   overflow: hidden;
 }
 
-.hero-grid {
+#heroPixelWrap {
   position: absolute;
-  inset: 0;
-  z-index: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
   pointer-events: none;
+  z-index: 0;
 }
 
-.hero-grid-cell {
-  display: none;
+.hero-px-sq {
+  position: absolute;
+  background: #fff;
+  opacity: 0;
 }
 
 .hero-content {

@@ -1,114 +1,51 @@
-// ── Hero Pixel Scatter Burst ───────────────────
-// Pixels bloom randomly around cursor in brand colors, no grid lines.
-
+// ── Hero pixel wave on load ─────────────────────
 (function () {
-  const hero = document.getElementById('hero');
-  const gridEl = document.getElementById('hero-grid');
-  if (!hero || !gridEl) return;
-
-  gridEl.innerHTML = '';
-
-  const trailCanvas = document.createElement('canvas');
-  trailCanvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;';
-  gridEl.appendChild(trailCanvas);
-  const tctx = trailCanvas.getContext('2d');
-
-  const CELL        = 40;
-  const LIFE        = 65;
-  const SPAWN_EVERY = 4;
-  const RADIUS      = 126;
-  const MAX         = 80;
-  const COLORS      = [
-    [255, 255, 255],
-    [255, 255, 255],
-    [255, 255, 255],
-    [77,  166, 239],  // Blue 400
-    [49,  225, 222],  // Cyan 300
-    [255, 192, 114],  // Yellow 300
+  const POS = [
+    [15,0],[14,1],[15,2],[13,2],[14,5],[8,9],[7,7],[9,5],[8,0],
+    [13,9],[12,7],[14,4],[15,3],[9,2],[12,4],[10,9],[11,10],[11,6],
+    [13,8],[14,10],[15,6],[13,5],[15,7],[14,7],[15,9],[13,0],[11,0],
+    [14,0],[10,3],[7,9],[6,8],[2,2],[1,1],[0,3],[2,5],[1,10],
+    [0,9],[6,1],[5,3],[7,6],[8,7],[2,8],[5,6],[3,1],[4,0],
+    [4,4],[7,0],[6,5],[8,3],[8,4],[6,10],[4,10],[3,7]
   ];
 
-  let W = 0, H = 0, dpr = 1;
-  let particles = [];
-  let mouse = null;
-  let rafId = null;
-  let frame = 0;
+  const SVG_H = 924, CELL = 84, COLS = 16, SVG_W = 1344;
+  const MAX_DELAY = 500, NOISE = 0.5;
 
-  function resize() {
-    dpr = window.devicePixelRatio || 1;
-    W = hero.offsetWidth;
-    H = hero.offsetHeight;
-    trailCanvas.width  = Math.round(W * dpr);
-    trailCanvas.height = Math.round(H * dpr);
-    trailCanvas.style.width  = W + 'px';
-    trailCanvas.style.height = H + 'px';
-  }
+  function init() {
+    const wrap = document.getElementById('heroPixelWrap');
+    const hero = document.getElementById('hero');
+    if (!wrap || !hero) return;
 
-  function spawnAround(mx, my) {
-    const angle = Math.random() * Math.PI * 2;
-    const dist  = Math.sqrt(Math.random()) * RADIUS;
-    const col   = Math.round((mx + Math.cos(angle) * dist) / CELL) * CELL;
-    const row   = Math.round((my + Math.sin(angle) * dist) / CELL) * CELL;
-    if (col < 0 || row < 0 || col > W || row > H) return;
-    if (particles.some(p => p.col === col && p.row === row && p.life > LIFE * 0.25)) return;
-    particles.push({
-      col, row,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      life: LIFE,
-      maxLife: LIFE,
+    const H = hero.offsetHeight;
+    const scale = H / SVG_H;
+    const cellPx = CELL * scale;
+    wrap.style.width = (SVG_W * scale) + 'px';
+
+    POS.forEach(([col, row]) => {
+      const div = document.createElement('div');
+      div.className = 'hero-px-sq';
+      div.style.left   = (col * cellPx) + 'px';
+      div.style.top    = (row * cellPx) + 'px';
+      div.style.width  = (cellPx - 2) + 'px';
+      div.style.height = (cellPx - 2) + 'px';
+      wrap.appendChild(div);
+
+      // right → left wave: col 15 fires first
+      const progress = (COLS - 1 - col) / (COLS - 1);
+      const noise = (Math.random() - 0.5) * MAX_DELAY * NOISE;
+      const delay = Math.max(0, progress * MAX_DELAY + noise);
+      setTimeout(() => { div.style.opacity = '1'; }, delay);
     });
-    if (particles.length > MAX) particles.splice(0, particles.length - MAX);
   }
 
-  function render() {
-    rafId = requestAnimationFrame(render);
-    frame++;
-
-    tctx.setTransform(1, 0, 0, 1, 0, 0);
-    tctx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-
-    if (mouse && frame % SPAWN_EVERY === 0) spawnAround(mouse.x, mouse.y);
-
-    particles = particles.filter(p => p.life > 0);
-
-    particles.forEach(p => {
-      p.life--;
-      const t = 1 - (p.life / p.maxLife);
-      // Smooth sine bell: ease in then slow ease out
-      const alpha = t < 0.15
-        ? Math.sin((t / 0.15) * Math.PI * 0.5) * 0.65
-        : Math.sin(((1 - t) / 0.85) * Math.PI * 0.5) * 0.65;
-      if (alpha < 0.005) return;
-      const [r, g, b] = p.color;
-      tctx.fillStyle = `rgba(${r},${g},${b},${alpha.toFixed(3)})`;
-      tctx.fillRect(Math.round(p.col * dpr), Math.round(p.row * dpr), Math.round(CELL * dpr), Math.round(CELL * dpr));
-    });
-
-    if (!mouse && particles.every(p => p.life <= 0)) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  function startRender() {
-    if (!rafId) rafId = requestAnimationFrame(render);
-  }
-
-  hero.addEventListener('mousemove', e => {
-    const rect = hero.getBoundingClientRect();
-    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    startRender();
-  });
-
-  hero.addEventListener('mouseleave', () => { mouse = null; });
-
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 150);
-  });
-
-  resize();
 })();
+
 
 // ── Active nav on scroll ──────────────────────
 const sections = document.querySelectorAll('.section');
