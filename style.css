@@ -842,7 +842,9 @@ body {
   justify-content: center;
   padding: 48px 24px;
   background: var(--gray-50);
+  border: 1px solid var(--gray-200);
   border-radius: 8px;
+  margin-top: 8px;
 }
 
 .empty-state-img {
@@ -1186,6 +1188,7 @@ body {
 .media-kit-hero {
   background: linear-gradient(to right, #7274DA, #4DA6EF);
   border-radius: 8px;
+  padding: 64px 40px;
   display: flex;
   align-items: center;
   justify-content: center;
