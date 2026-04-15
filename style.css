@@ -316,7 +316,7 @@ body {
 }
 
 .color-card {
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--gray-200);
   background: #fff;
@@ -447,7 +447,7 @@ body {
   padding: 20px 24px;
   background: var(--gray-50);
   border: 1px solid var(--gray-200);
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .icon-meta-item {
@@ -505,7 +505,7 @@ body {
 /* ── Icon grid outer wrapper ─────────────────── */
 .icon-grid-outer {
   border: 1px solid var(--gray-200);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 8px;
 }
@@ -680,7 +680,7 @@ body {
 }
 
 .icon-showcase-panel {
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--gray-200);
 }
@@ -750,7 +750,7 @@ body {
 }
 
 .icon-usage-col {
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid var(--gray-200);
   padding: 20px 24px;
 }
@@ -821,7 +821,7 @@ body {
 }
 
 .icon-color-demo-card {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px 16px 14px;
   display: flex;
   flex-direction: column;
@@ -842,9 +842,7 @@ body {
   justify-content: center;
   padding: 48px 24px;
   background: var(--gray-50);
-  border-radius: 16px;
-  border: 1px solid var(--gray-200);
-  margin-top: 8px;
+  border-radius: 8px;
 }
 
 .empty-state-img {
@@ -923,7 +921,7 @@ body {
 
 .typeface-card {
   border: 1px solid var(--gray-200);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px 18px;
   display: flex;
   align-items: center;
@@ -970,7 +968,7 @@ body {
 /* ── Type scale table ───────────────────────── */
 .type-card {
   border: 1px solid var(--gray-200);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   background: #fff;
 }
@@ -1047,7 +1045,7 @@ body {
 .logo-lockup-card {
   background: #fff;
   border: 1px solid var(--gray-200);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -1087,7 +1085,6 @@ body {
   background: var(--gray-100);
   border-radius: 999px;
   padding: 3px;
-  border: 1px solid var(--gray-200);
   flex-shrink: 0;
 }
 
@@ -1138,7 +1135,7 @@ body {
 .logo-btn-png {
   color: var(--gray-600);
   background: var(--gray-100);
-  border: 1px solid var(--gray-200);
+  border: none;
 }
 .logo-btn-png:hover { background: var(--gray-200); }
 
@@ -1188,8 +1185,7 @@ body {
 
 .media-kit-hero {
   background: linear-gradient(to right, #7274DA, #4DA6EF);
-  border-radius: 16px;
-  padding: 64px 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1707,7 +1703,7 @@ body {
 
 .dl-modal {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 24px;
   width: 320px;
   display: flex;
