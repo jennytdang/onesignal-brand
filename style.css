@@ -176,6 +176,7 @@ body {
   padding: 88px 64px;
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid var(--gray-200);
 }
 
 #heroPixelWrap {
@@ -546,7 +547,7 @@ body {
   display: flex;
   align-items: flex-end;
   gap: 0;
-  padding: 8px 12px 0;
+  padding: 14px 16px 0;
   border-bottom: 1px solid var(--gray-200);
 }
 
@@ -579,9 +580,10 @@ body {
 .icon-tab:hover .icon-tab-label { background: #F3F3FC; color: var(--black); }
 .icon-tab.active .icon-tab-label { color: var(--black); background: none; }
 
-.icon-grid-outer[data-variant="white"] .icon-tab-label { color: rgba(255,255,255,0.35); }
-.icon-grid-outer[data-variant="white"] .icon-tab:hover .icon-tab-label { background: rgba(255,255,255,0.08); color: #fff; }
-.icon-grid-outer[data-variant="white"] .icon-tab.active .icon-tab-label { color: #fff; background: none; }
+/* Tab row always stays white bg — keep text dark regardless of grid variant */
+.icon-grid-outer[data-variant="white"] .icon-tab-label { color: #C7CCD1; }
+.icon-grid-outer[data-variant="white"] .icon-tab:hover .icon-tab-label { background: #F3F3FC; color: var(--black); }
+.icon-grid-outer[data-variant="white"] .icon-tab.active .icon-tab-label { color: var(--black); background: none; }
 
 .icon-tab-bar {
   height: 4px;
@@ -594,8 +596,9 @@ body {
 
 /* ── Icon grid ───────────────────────────────── */
 .icon-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 44px);
+  justify-content: space-between;
   gap: 4px;
   padding: 16px;
   width: 100%;
