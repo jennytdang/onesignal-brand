@@ -37,7 +37,7 @@ body {
   position: fixed;
   top: 0; left: 0; bottom: 0;
   width: var(--sidebar-w);
-  background: #ffffff;
+  background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 28px 24px 24px;
@@ -593,14 +593,8 @@ body {
 }
 
 /* Dark background only on the grid itself when White variant */
-.icon-grid[data-variant="white"] {
-  background: #051B2C;
-}
 
-.icon-grid-outer[data-variant="white"] {
-  background: #fff;
-  border-color: var(--gray-200);
-}
+
 
 .icon-tab.active .icon-tab-bar {
   background: var(--purple-600);
@@ -611,10 +605,12 @@ body {
   flex-wrap: wrap;
   gap: 4px;
   padding: 16px;
+  width: 100%;
+  min-height: 120px;
 }
 
 .icon-grid[data-variant="white"] {
-  background: transparent;
+  background: #051B2C;
 }
 
 .icon-card {
