@@ -1789,9 +1789,22 @@ body {
   .sidebar.open { transform: translateX(0); }
   .mobile-header { display: flex; }
   .content { margin-left: 0; }
-  .hero { padding: 48px 24px 140px; min-height: 420px; }
-  .hero-title { font-size: 42px; }
-  .section { padding: 0 24px; }
+
+  /* Hero */
+  .hero { padding: 48px 24px 48px; min-height: unset; }
+  .hero-title { font-size: 40px; }
+  .hero-sub { font-size: 15px; }
+  #heroPixelWrap { width: 60%; }
+
+  /* Sections — restore vertical padding */
+  .section { padding: 48px 24px; }
+  .section + .section { border-top: 1px solid var(--gray-200); }
+
+  /* Section headings */
+  .section-title { font-size: 32px; }
+  .subsection-title { margin: 28px 0 12px; }
+
+  /* Grids */
   .color-grid.supplemental { grid-template-columns: 1fr 1fr; }
   .type-showcase { grid-template-columns: 1fr; }
   .voice-pillars { grid-template-columns: 1fr 1fr; }
@@ -1807,17 +1820,34 @@ body {
   .copy-rules-grid, .ref-links { grid-template-columns: 1fr; }
   .ai-form-area { padding: 20px; }
   .ai-response-area { padding: 20px; }
+
+  /* Icon layout */
+  .icon-layout { flex-direction: column; gap: 12px; }
+  .icon-nav { flex-direction: row; width: 100%; padding-top: 0; }
+  .icon-nav-item { width: auto; }
+  .icon-nav-bar { width: 30px; height: 4px; align-self: unset; }
+
+  /* Typeface cards */
+  .typeface-grid { grid-template-columns: 1fr; }
+
+  /* Logo cards */
+  .logo-cards-grid { grid-template-columns: 1fr; }
+
+  /* Search */
+  .icon-search-wrap { max-width: 100%; }
 }
 
 @media (max-width: 560px) {
+  .hero { padding: 36px 20px; }
+  .hero-title { font-size: 32px; }
+  .hero-sub { font-size: 14px; }
+  .section { padding: 36px 20px; }
+  .section-title { font-size: 28px; }
+
   .color-grid, .color-grid.supplemental { grid-template-columns: 1fr; }
   .voice-pillars, .icon-color-examples, .logo-bg-grid { grid-template-columns: 1fr; }
   .copy-principles { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 560px) {
-  .color-grid, .color-grid.supplemental { grid-template-columns: 1fr; }
-  .voice-pillars, .icon-color-examples, .logo-bg-grid { grid-template-columns: 1fr; }
+  .icon-nav { flex-wrap: wrap; }
 }
 
 /* ── Copywriting Section ────────────────────── */
@@ -2202,13 +2232,4 @@ body {
 
 @media (max-width: 900px) {
   .copy-principles { grid-template-columns: 1fr 1fr; }
-  .copy-element { grid-template-columns: 1fr; }
-  .copy-el-type { border-right: none; border-bottom: 1px solid #E0DFFC; padding: 12px 20px; }
-  .copy-rules-grid, .ref-links { grid-template-columns: 1fr; }
-  .ai-form-area { padding: 20px; }
-  .ai-response-area { padding: 20px; }
-}
-
-@media (max-width: 560px) {
-  .copy-principles { grid-template-columns: 1fr; }
 }
