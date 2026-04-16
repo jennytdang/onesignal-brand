@@ -532,81 +532,67 @@ body {
 .icon-variant-toggle { display: none; }
 .icon-variant-btn { display: none; }
 
-/* ── Icon two-column layout ─────────────────── */
-.icon-layout {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-/* Left: vertical nav tabs */
-.icon-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-  width: 100px;
-  padding-top: 4px;
-}
-
-.icon-nav-item {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 0;
-  outline: none;
-}
-
-.icon-nav-label {
-  flex: 1;
-  padding: 6px 8px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 400;
-  color: #59626B;
-  text-align: left;
-  border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
-}
-
-.icon-nav-item:hover .icon-nav-label {
-  background: #F3F3FC;
-  color: var(--black);
-}
-
-.icon-nav-item.active .icon-nav-label {
-  background: #F3F3FC;
-  color: var(--black);
-  font-weight: 500;
-}
-
-.icon-nav-bar {
-  width: 4px;
-  height: 30px;
-  border-radius: 2px;
-  background: transparent;
-  flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.icon-nav-item.active .icon-nav-bar {
-  background: var(--purple-600);
-}
-
 /* ── Icon grid outer wrapper ─────────────────── */
 .icon-grid-outer {
-  flex: 1;
   border: 1px solid var(--gray-200);
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
-  min-width: 0;
+  margin-bottom: 8px;
 }
 
+/* ── Icon tabs inside card top row ──────────── */
+.icon-tab-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.icon-grid-outer[data-variant="white"] .icon-tab-row {
+  border-bottom-color: rgba(255,255,255,0.1);
+}
+
+.icon-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  margin-right: 16px;
+}
+
+.icon-tab:last-child { margin-right: 0; }
+
+.icon-tab-label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #C7CCD1;
+  padding: 6px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-tab:hover .icon-tab-label { background: #F3F3FC; color: var(--black); }
+.icon-tab.active .icon-tab-label { color: var(--black); background: none; }
+
+.icon-grid-outer[data-variant="white"] .icon-tab-label { color: rgba(255,255,255,0.35); }
+.icon-grid-outer[data-variant="white"] .icon-tab:hover .icon-tab-label { background: rgba(255,255,255,0.08); color: #fff; }
+.icon-grid-outer[data-variant="white"] .icon-tab.active .icon-tab-label { color: #fff; background: none; }
+
+.icon-tab-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: transparent;
+  margin-bottom: -1px;
+}
+
+.icon-tab.active .icon-tab-bar { background: var(--purple-600); }
+
+/* ── Icon grid ───────────────────────────────── */
 .icon-grid {
   display: flex;
   flex-wrap: wrap;
@@ -616,9 +602,7 @@ body {
   min-height: 120px;
 }
 
-.icon-grid[data-variant="white"] {
-  background: #051B2C;
-}
+.icon-grid[data-variant="white"] { background: #051B2C; }
 
 .icon-card {
   display: flex;
