@@ -181,11 +181,13 @@ body {
 #heroPixelWrap {
   position: absolute;
   top: 0;
-  right: -28px;
+  right: 0;
   bottom: 0;
+  width: 50%;
   display: grid;
   grid-template-columns: repeat(13, 48px);
   align-content: start;
+  justify-content: end;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: overlay;

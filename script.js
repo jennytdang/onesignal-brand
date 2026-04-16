@@ -1,6 +1,5 @@
 // ── Hero animations ─────────────────────────────
 (function () {
-  const COLS = 13;
   const TEXT_DUR = 450, STAGGER = 120, PX_DELAY = 300;
   const MAX_WAVE = 250, NOISE = 0.65;
   const MIN_OP = 0.08, MAX_OP = 0.70;
@@ -26,24 +25,25 @@
     wrap.innerHTML = '';
 
     const CELL = 48;
+    const cols = Math.ceil((hero.offsetWidth * 0.5) / CELL) + 1;
     const rows = Math.ceil(hero.offsetHeight / CELL) + 1;
+    wrap.style.gridTemplateColumns = `repeat(${cols}, ${CELL}px)`;
 
     for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < COLS; c++) {
+      for (let c = 0; c < cols; c++) {
         const div = document.createElement('div');
         div.className = 'hero-px-sq';
 
-        // density: right cols always filled, left cols increasingly sparse
-        const colProgress = c / (COLS - 1);
-        const fillProb = 0.15 + 0.85 * Math.pow(colProgress, 0.6);
+        const colProgress = c / (cols - 1);
+        const fillProb = 0.1 + 0.9 * Math.pow(colProgress, 0.5);
         if (Math.random() > fillProb) { wrap.appendChild(div); continue; }
 
-        const op = rand(MIN_OP, MAX_OP) * (0.25 + 0.75 * colProgress);
+        const op = rand(MIN_OP, MAX_OP) * (0.2 + 0.8 * colProgress);
         div.style.background = `rgba(0,0,0,${op.toFixed(2)})`;
 
-        const colProgress2 = (COLS - 1 - c) / (COLS - 1);
+        const rightProgress = (cols - 1 - c) / (cols - 1);
         const noise = (Math.random() - 0.5) * MAX_WAVE * NOISE;
-        const delay = PX_DELAY + r * 20 + Math.max(0, colProgress2 * MAX_WAVE + noise);
+        const delay = PX_DELAY + r * 20 + Math.max(0, rightProgress * MAX_WAVE + noise);
         setTimeout(() => { div.style.opacity = op.toFixed(2); }, delay);
 
         wrap.appendChild(div);
