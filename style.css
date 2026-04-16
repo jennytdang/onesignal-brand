@@ -37,7 +37,7 @@ body {
   position: fixed;
   top: 0; left: 0; bottom: 0;
   width: var(--sidebar-w);
-  background: #F3F4F5;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   padding: 28px 24px 24px;
@@ -168,24 +168,30 @@ body {
 
 /* ── Hero ───────────────────────────────────── */
 .hero {
-  background: linear-gradient(to right, #7274DA, #4DA6EF);
-  padding: 88px 64px 88px;
+  background:
+    radial-gradient(ellipse at 90% 10%, rgba(114,116,218,0.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 100% 60%, rgba(77,166,239,0.5) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 100%, rgba(49,225,222,0.55) 0%, transparent 45%),
+    #ffffff;
+  padding: 88px 64px;
   position: relative;
   overflow: hidden;
 }
 
 #heroPixelWrap {
   position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
+  bottom: -28px;
+  right: -28px;
+  display: grid;
+  grid-template-columns: repeat(13, 48px);
   pointer-events: none;
   z-index: 0;
+  mix-blend-mode: overlay;
 }
 
 .hero-px-sq {
-  position: absolute;
-  background: #fff;
+  width: 48px;
+  height: 48px;
   opacity: 0;
 }
 
@@ -196,8 +202,8 @@ body {
 }
 .hero-pill {
   display: inline-block;
-  border: 1.5px solid rgba(255,255,255,0.7);
-  color: #fff;
+  border: 1px solid var(--purple-600);
+  color: var(--purple-600);
   font-family: var(--font-heading);
   font-size: 12px;
   font-weight: 500;
@@ -212,7 +218,7 @@ body {
   font-size: 68px;
   font-weight: 800;
   line-height: 1.0;
-  color: #fff;
+  color: var(--black);
   margin-bottom: 20px;
   letter-spacing: -0.02em;
   opacity: 0;
@@ -221,7 +227,7 @@ body {
 .hero-sub {
   font-size: 16px;
   line-height: 1.65;
-  color: rgba(255,255,255,0.82);
+  color: var(--gray-800);
   max-width: 560px;
   opacity: 0;
 }

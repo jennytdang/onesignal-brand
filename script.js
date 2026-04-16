@@ -1,17 +1,23 @@
 // ── Hero animations ─────────────────────────────
 (function () {
-  const POS = [
-    [15,0],[14,1],[15,2],[13,2],[14,5],[8,9],[7,7],[9,5],[8,0],
-    [13,9],[12,7],[14,4],[15,3],[9,2],[12,4],[10,9],[11,10],[11,6],
-    [13,8],[14,10],[15,6],[13,5],[15,7],[14,7],[15,9],[13,0],[11,0],
-    [14,0],[10,3],[7,9],[6,8],[2,2],[1,1],[0,3],[2,5],[1,10],
-    [0,9],[6,1],[5,3],[7,6],[8,7],[2,8],[5,6],[3,1],[4,0],
-    [4,4],[7,0],[6,5],[8,3],[8,4],[6,10],[4,10],[3,7]
+  const FILLED = [
+    [1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,0,0],
   ];
 
-  const SVG_H = 924, CELL = 84, COLS = 16, SVG_W = 1344;
-  const TEXT_DUR = 600, STAGGER = 80, PX_DELAY = 450;
-  const MAX_DELAY = 250, NOISE = 0.65;
+  const COLS = 13;
+  const TEXT_DUR = 450, STAGGER = 120, PX_DELAY = 300;
+  const MAX_WAVE = 250, NOISE = 0.65;
+  const MIN_OP = 0.08, MAX_OP = 0.70;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
 
   function animateEl(el, delay) {
     el.style.opacity = '0';
@@ -27,30 +33,23 @@
 
   function initPixels() {
     const wrap = document.getElementById('heroPixelWrap');
-    const hero = document.getElementById('hero');
-    if (!wrap || !hero) return;
+    if (!wrap) return;
+    wrap.innerHTML = '';
 
-    const H = hero.offsetHeight;
-    const scale = H / SVG_H;
-    const cellPx = CELL * scale;
-    wrap.style.width = (SVG_W * scale) + 'px';
-    wrap.style.mixBlendMode = 'overlay';
-
-    POS.forEach(([col, row]) => {
-      const div = document.createElement('div');
-      div.className = 'hero-px-sq';
-      div.style.background = '#000';
-      div.style.left   = (col * cellPx) + 'px';
-      div.style.top    = (row * cellPx) + 'px';
-      div.style.width  = cellPx + 'px';
-      div.style.height = cellPx + 'px';
-      wrap.appendChild(div);
-
-      const progress = (COLS - 1 - col) / (COLS - 1);
-      const noise = (Math.random() - 0.5) * MAX_DELAY * NOISE;
-      const delay = PX_DELAY + Math.max(0, progress * MAX_DELAY + noise);
-      const op = (0.01 + Math.random() * 0.17).toFixed(3);
-      setTimeout(() => { div.style.opacity = op; }, delay);
+    FILLED.forEach((row, r) => {
+      row.forEach((filled, c) => {
+        const div = document.createElement('div');
+        div.className = 'hero-px-sq';
+        if (filled) {
+          const op = rand(MIN_OP, MAX_OP).toFixed(2);
+          div.style.background = `rgba(0,0,0,${op})`;
+          const colProgress = (COLS - 1 - c) / (COLS - 1);
+          const noise = (Math.random() - 0.5) * MAX_WAVE * NOISE;
+          const delay = PX_DELAY + r * 25 + Math.max(0, colProgress * MAX_WAVE + noise);
+          setTimeout(() => { div.style.opacity = op; }, delay);
+        }
+        wrap.appendChild(div);
+      });
     });
   }
 
@@ -72,6 +71,7 @@
     init();
   }
 })();
+
 
 
 // ── Active nav on scroll ──────────────────────
