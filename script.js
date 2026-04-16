@@ -1,17 +1,5 @@
 // ── Hero animations ─────────────────────────────
 (function () {
-  const FILLED = [
-    [1,1,1,1,1,1,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,0,0],
-  ];
-
   const COLS = 13;
   const TEXT_DUR = 450, STAGGER = 120, PX_DELAY = 300;
   const MAX_WAVE = 250, NOISE = 0.65;
@@ -33,24 +21,34 @@
 
   function initPixels() {
     const wrap = document.getElementById('heroPixelWrap');
-    if (!wrap) return;
+    const hero = document.getElementById('hero');
+    if (!wrap || !hero) return;
     wrap.innerHTML = '';
 
-    FILLED.forEach((row, r) => {
-      row.forEach((filled, c) => {
+    const CELL = 48;
+    const rows = Math.ceil(hero.offsetHeight / CELL) + 1;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < COLS; c++) {
         const div = document.createElement('div');
         div.className = 'hero-px-sq';
-        if (filled) {
-          const op = rand(MIN_OP, MAX_OP).toFixed(2);
-          div.style.background = `rgba(0,0,0,${op})`;
-          const colProgress = (COLS - 1 - c) / (COLS - 1);
-          const noise = (Math.random() - 0.5) * MAX_WAVE * NOISE;
-          const delay = PX_DELAY + r * 25 + Math.max(0, colProgress * MAX_WAVE + noise);
-          setTimeout(() => { div.style.opacity = op; }, delay);
-        }
+
+        // density: right cols always filled, left cols increasingly sparse
+        const colProgress = c / (COLS - 1);
+        const fillProb = 0.15 + 0.85 * Math.pow(colProgress, 0.6);
+        if (Math.random() > fillProb) { wrap.appendChild(div); continue; }
+
+        const op = rand(MIN_OP, MAX_OP) * (0.25 + 0.75 * colProgress);
+        div.style.background = `rgba(0,0,0,${op.toFixed(2)})`;
+
+        const colProgress2 = (COLS - 1 - c) / (COLS - 1);
+        const noise = (Math.random() - 0.5) * MAX_WAVE * NOISE;
+        const delay = PX_DELAY + r * 20 + Math.max(0, colProgress2 * MAX_WAVE + noise);
+        setTimeout(() => { div.style.opacity = op.toFixed(2); }, delay);
+
         wrap.appendChild(div);
-      });
-    });
+      }
+    }
   }
 
   function init() {

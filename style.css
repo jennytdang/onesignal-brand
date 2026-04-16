@@ -180,10 +180,12 @@ body {
 
 #heroPixelWrap {
   position: absolute;
-  bottom: -28px;
+  top: 0;
   right: -28px;
+  bottom: 0;
   display: grid;
   grid-template-columns: repeat(13, 48px);
+  align-content: start;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: overlay;
