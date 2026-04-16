@@ -538,8 +538,7 @@ if (menuBtn) {
   window.setIconVariant = function(variant, tabEl) {
     currentVariant = variant;
     grid.dataset.variant = variant;
-    document.getElementById('iconGridOuter').dataset.variant = variant;
-    document.querySelectorAll('.icon-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.icon-nav-item').forEach(t => t.classList.remove('active'));
     tabEl.classList.add('active');
     renderGrid(searchInput.value);
   };

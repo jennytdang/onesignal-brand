@@ -524,6 +524,7 @@ body {
   outline: none;
   transition: border-color 0.15s;
   background: #fff;
+  box-sizing: border-box;
 }
 
 .icon-search:focus { border-color: var(--purple-600); }
@@ -531,73 +532,79 @@ body {
 .icon-variant-toggle { display: none; }
 .icon-variant-btn { display: none; }
 
-/* ── Icon tabs — standalone above card ──────── */
-.icon-tab-row {
+/* ── Icon two-column layout ─────────────────── */
+.icon-layout {
   display: flex;
-  align-items: flex-end;
-  gap: 0;
-  padding: 0 2px;
-  margin-bottom: 8px;
+  gap: 16px;
+  align-items: flex-start;
 }
 
-.icon-tab {
+/* Left: vertical nav tabs */
+.icon-nav {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  cursor: pointer;
-  margin-right: 20px;
+  flex-shrink: 0;
+  width: 100px;
+  padding-top: 4px;
 }
 
-.icon-tab:last-child { margin-right: 0; }
+.icon-nav-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+}
 
-.icon-tab-label {
+.icon-nav-label {
+  flex: 1;
+  padding: 6px 8px;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 400;
-  line-height: 18px;
-  color: #C7CCD1;
-  padding: 6px 10px;
+  color: #59626B;
+  text-align: left;
   border-radius: 4px;
-  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
-.icon-tab:hover .icon-tab-label {
+.icon-nav-item:hover .icon-nav-label {
   background: #F3F3FC;
   color: var(--black);
 }
 
-.icon-tab.active .icon-tab-label {
+.icon-nav-item.active .icon-nav-label {
+  background: #F3F3FC;
   color: var(--black);
-  background: none;
+  font-weight: 500;
 }
 
-.icon-tab-bar {
-  height: 4px;
+.icon-nav-bar {
+  width: 4px;
+  height: 30px;
   border-radius: 2px;
   background: transparent;
-  margin-bottom: -1px;
+  flex-shrink: 0;
+  transition: background 0.15s;
 }
 
-.icon-tab.active .icon-tab-bar {
+.icon-nav-item.active .icon-nav-bar {
   background: var(--purple-600);
 }
 
-/* ── Icon grid outer wrapper — always white ── */
+/* ── Icon grid outer wrapper ─────────────────── */
 .icon-grid-outer {
+  flex: 1;
   border: 1px solid var(--gray-200);
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
-  margin-bottom: 8px;
-}
-
-/* Dark background only on the grid itself when White variant */
-
-
-
-.icon-tab.active .icon-tab-bar {
-  background: var(--purple-600);
+  min-width: 0;
 }
 
 .icon-grid {
@@ -678,7 +685,8 @@ body {
 
 .icon-grid-empty-img {
   height: 38px;
-  width: auto;
+  width: 60px;
+  object-fit: contain;
 }
 
 .icon-grid-empty-text {
@@ -864,7 +872,7 @@ body {
 }
 
 .empty-state-img {
-  width: 60px;
+  width: 120px;
   height: auto;
   margin-bottom: 16px;
 }

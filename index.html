@@ -636,24 +636,30 @@
         </div>
       </div>
 
-      <div class="icon-tab-row">
-        <div class="icon-tab active" id="btnPurple" onclick="setIconVariant('purple', this)">
-          <span class="icon-tab-label">Purple</span>
-          <div class="icon-tab-bar"></div>
-        </div>
-        <div class="icon-tab" id="btnWhite" onclick="setIconVariant('white', this)">
-          <span class="icon-tab-label">White</span>
-          <div class="icon-tab-bar"></div>
-        </div>
-      </div>
+      <div class="icon-layout">
 
-      <div class="icon-grid-outer" id="iconGridOuter">
-        <div class="icon-grid" id="iconGrid" data-variant="purple">
-          <div class="icon-grid-empty" id="iconGridEmpty" style="display:none;">
-            <img src="assets/empty-state-squirrel.svg" alt="" class="icon-grid-empty-img" />
-            <p class="icon-grid-empty-text">No icons match your search.</p>
+        <!-- Left: vertical nav tabs -->
+        <div class="icon-nav">
+          <button class="icon-nav-item active" id="btnPurple" onclick="setIconVariant('purple', this)">
+            <span class="icon-nav-label">Purple</span>
+            <div class="icon-nav-bar"></div>
+          </button>
+          <button class="icon-nav-item" id="btnWhite" onclick="setIconVariant('white', this)">
+            <span class="icon-nav-label">White</span>
+            <div class="icon-nav-bar"></div>
+          </button>
+        </div>
+
+        <!-- Right: icon grid in outlined card -->
+        <div class="icon-grid-outer" id="iconGridOuter">
+          <div class="icon-grid" id="iconGrid" data-variant="purple">
+            <div class="icon-grid-empty" id="iconGridEmpty" style="display:none;">
+              <img src="assets/empty-state-squirrel.svg" alt="" class="icon-grid-empty-img" />
+              <p class="icon-grid-empty-text">No icons match your search.</p>
+            </div>
           </div>
         </div>
+
       </div>
 
     </section>
