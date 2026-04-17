@@ -485,8 +485,12 @@ if (menuBtn) {
 
           // Process SVG with correct color + padded viewBox
           let svgHtml = processSvg(svgText, currentVariant);
-          // Set size for canvas rendering
-          svgHtml = svgHtml.replace(/width="32"/, `width="${SIZE}"`).replace(/height="32"/, `height="${SIZE}"`);
+
+          // Set the correct render size (processSvg sets width/height to 20 — override to SIZE)
+          svgHtml = svgHtml
+            .replace(/width="[^"]*"/, `width="${SIZE}"`)
+            .replace(/height="[^"]*"/, `height="${SIZE}"`);
+
           const blob = new Blob([svgHtml], { type: 'image/svg+xml' });
           const url = URL.createObjectURL(blob);
 
